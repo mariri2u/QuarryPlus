@@ -76,7 +76,7 @@ public class TileQuarry extends TileBasic {
 		}
 		List<ItemStack> cache = new LinkedList<ItemStack>();
 		for (ItemStack is : this.cacheItems) {
-			int added = addToRandomInventory(is, this.worldObj, this.xCoord, this.yCoord, this.zCoord).stackSize;
+			int added = addToRandomInventory(is, this.worldObj, this.xCoord, this.yCoord, this.zCoord, ForgeDirection.UNKNOWN).stackSize;
 			is.stackSize -= added;
 			if (is.stackSize > 0) {
 				if (!addToRandomPipeEntry(this, ForgeDirection.UNKNOWN, is)) cache.add(is);
@@ -368,7 +368,7 @@ public class TileQuarry extends TileBasic {
 
 	private void S_setBreakableFrame(int x, int y, int z) {
 		if (this.worldObj.getBlockId(x, y, z) == frameBlock.blockID) {
-			this.worldObj.setBlockMetadataWithNotify(x, y, z, 1, 3);
+			this.worldObj.setBlockMetadata(x, y, z, 1);
 		}
 	}
 

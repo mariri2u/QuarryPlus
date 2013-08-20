@@ -51,7 +51,7 @@ public class TileMiningWell extends TileBasic {
 		if (this.working) S_breakBlock(depth);
 		List<ItemStack> cache = new LinkedList<ItemStack>();
 		for (ItemStack is : this.cacheItems) {
-			int added = addToRandomInventory(is, this.worldObj, this.xCoord, this.yCoord, this.zCoord).stackSize;
+			int added = addToRandomInventory(is, this.worldObj, this.xCoord, this.yCoord, this.zCoord, ForgeDirection.UNKNOWN).stackSize;
 			is.stackSize -= added;
 			if (is.stackSize > 0) {
 				if (!addToRandomPipeEntry(this, ForgeDirection.UNKNOWN, is)) cache.add(is);
@@ -106,7 +106,7 @@ public class TileMiningWell extends TileBasic {
 			if (this.worldObj.getBlockId(this.xCoord, depth, this.zCoord) != plainPipeBlock.blockID) {
 				break;
 			}
-			this.worldObj.setBlockToAir(this.xCoord, depth, this.zCoord);
+			this.worldObj.setBlock(this.xCoord, depth, this.zCoord, 0);
 		}
 	}
 

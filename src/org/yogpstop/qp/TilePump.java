@@ -401,20 +401,20 @@ public class TilePump extends APacketTile implements ITankContainer {
 						meta = this.ebses[bx >> 4][bz >> 4][this.currentHeight >> 4].getExtBlockMetadata(bx & 0xF, this.currentHeight & 0xF, bz & 0xF);
 						if (isLiquid(bb)) {
 							if (bb instanceof ILiquid && ((ILiquid) bb).stillLiquidMeta() == meta) {
-								this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
+								this.worldObj.setBlock(bx + this.xOffset, this.currentHeight, bz + this.zOffset, 0);
 								fs = new LiquidStack(((ILiquid) bb).stillLiquidId(), LiquidContainerRegistry.BUCKET_VOLUME, ((ILiquid) bb).stillLiquidMeta());
 							} else if ((bid == Block.waterStill.blockID || bid == Block.waterMoving.blockID) && meta == 0) {
-								this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
+								this.worldObj.setBlock(bx + this.xOffset, this.currentHeight, bz + this.zOffset, 0);
 								fs = new LiquidStack(Block.waterStill, LiquidContainerRegistry.BUCKET_VOLUME);
 							} else if ((bid == Block.lavaStill.blockID || bid == Block.lavaMoving.blockID) && meta == 0) {
-								this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
+								this.worldObj.setBlock(bx + this.xOffset, this.currentHeight, bz + this.zOffset, 0);
 								fs = new LiquidStack(Block.lavaStill, LiquidContainerRegistry.BUCKET_VOLUME);
 							}
 							if (fs != null) {
 								if (this.liquids.contains(fs)) this.liquids.get(this.liquids.indexOf(fs)).amount += fs.amount;
 								else this.liquids.add(fs);
 								fs = null;
-							} else this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
+							} else this.worldObj.setBlock(bx + this.xOffset, this.currentHeight, bz + this.zOffset, 0);
 							if ((this.blocks[this.currentHeight - this.yOffset][bx][bz] & 0x40) != 0) this.worldObj.setBlock(bx + this.xOffset,
 									this.currentHeight, bz + this.zOffset, BuildCraftFactory.frameBlock.blockID);
 						}
@@ -443,7 +443,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	private int getFluidAmount(String key) {
 		for (LiquidStack fs : this.liquids)
-			if (fs.equals(LiquidDictionary.getCanonicalLiquid(key))) return fs.amount;
+			if (fs.equals(LiquidDictionary.getLiquid(key, 0))) return fs.amount;
 		return 0;
 	}
 
@@ -469,7 +469,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 	String incl(int side) {
 		boolean match = false;
 		for (LiquidStack fs : this.liquids) {
-			if (fs.equals(LiquidDictionary.getCanonicalLiquid(this.mapping[side]))) match = true;
+			if (fs.equals(LiquidDictionary.getLiquid(this.mapping[side], 0))) match = true;
 			else if (match) return this.mapping[side] = LiquidDictionary.findLiquidName(fs);
 		}
 		try {
@@ -497,7 +497,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	private LiquidStack getFluidStack(ForgeDirection fd) {
 		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return null;
-		int index = this.liquids.indexOf(LiquidDictionary.getCanonicalLiquid(this.mapping[fd.ordinal()]));
+		int index = this.liquids.indexOf(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
 		if (index < 0 || index >= this.liquids.size()) return null;
 		return this.liquids.get(index);
 	}

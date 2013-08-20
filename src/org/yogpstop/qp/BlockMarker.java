@@ -2,13 +2,10 @@ package org.yogpstop.qp;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import static buildcraft.BuildCraftCore.markerModel;
 import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.network.packet.Packet3Chat;
@@ -25,7 +22,8 @@ public class BlockMarker extends BlockContainer {
 		super(i, Material.circuits);
 		setLightValue(0.5F);
 		setCreativeTab(tabBuildCraft);
-		setUnlocalizedName("MarkerPlus");
+		setBlockName("MarkerPlus");
+		this.blockIndexInTexture = 16;
 	}
 
 	@Override
@@ -40,17 +38,17 @@ public class BlockMarker extends BlockContainer {
 		ForgeDirection dir = ForgeDirection.getOrientation(meta);
 		switch (dir) {
 		case DOWN:
-			return AxisAlignedBB.getAABBPool().getAABB(0.5F - w, 1F - h, 0.5F - w, 0.5F + w, 1F, 0.5F + w);
+			return AxisAlignedBB.getBoundingBox(0.5F - w, 1F - h, 0.5F - w, 0.5F + w, 1F, 0.5F + w);
 		case UP:
-			return AxisAlignedBB.getAABBPool().getAABB(0.5F - w, 0F, 0.5F - w, 0.5F + w, h, 0.5F + w);
+			return AxisAlignedBB.getBoundingBox(0.5F - w, 0F, 0.5F - w, 0.5F + w, h, 0.5F + w);
 		case SOUTH:
-			return AxisAlignedBB.getAABBPool().getAABB(0.5F - w, 0.5F - w, 0F, 0.5F + w, 0.5F + w, h);
+			return AxisAlignedBB.getBoundingBox(0.5F - w, 0.5F - w, 0F, 0.5F + w, 0.5F + w, h);
 		case NORTH:
-			return AxisAlignedBB.getAABBPool().getAABB(0.5F - w, 0.5F - w, 1 - h, 0.5F + w, 0.5F + w, 1);
+			return AxisAlignedBB.getBoundingBox(0.5F - w, 0.5F - w, 1 - h, 0.5F + w, 0.5F + w, 1);
 		case EAST:
-			return AxisAlignedBB.getAABBPool().getAABB(0F, 0.5F - w, 0.5F - w, h, 0.5F + w, 0.5F + w);
+			return AxisAlignedBB.getBoundingBox(0F, 0.5F - w, 0.5F - w, h, 0.5F + w, 0.5F + w);
 		default:
-			return AxisAlignedBB.getAABBPool().getAABB(1 - h, 0.5F - w, 0.5F - w, 1F, 0.5F + w, 0.5F + w);
+			return AxisAlignedBB.getBoundingBox(1 - h, 0.5F - w, 0.5F - w, 1F, 0.5F + w, 0.5F + w);
 		}
 	}
 
@@ -136,8 +134,7 @@ public class BlockMarker extends BlockContainer {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister) {
-		this.blockIcon = par1IconRegister.registerIcon("yogpstop_qp:marker");
+	public String getTextureFile() {
+		return "/mods/yogpstop_qp/textures/textures.png";
 	}
 }

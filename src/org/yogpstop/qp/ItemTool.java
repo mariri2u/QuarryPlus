@@ -6,18 +6,15 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
 public class ItemTool extends Item {
-	Icon ile, ils;
 
 	public ItemTool(int par1) {
 		super(par1);
@@ -29,14 +26,8 @@ public class ItemTool extends Item {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getIconFromDamage(int par1) {
-		switch (par1) {
-		case 1:
-			return this.ile;
-		case 2:
-			return this.ils;
-		}
-		return this.itemIcon;
+	public int getIconFromDamage(int par1) {
+		return 80 + par1;
 	}
 
 	@Override
@@ -57,7 +48,7 @@ public class ItemTool extends Item {
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack is) {
+	public String getItemNameIS(ItemStack is) {
 		switch (is.getItemDamage()) {
 		case 1:
 			return "item.listEditor";
@@ -76,10 +67,7 @@ public class ItemTool extends Item {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister ir) {
-		this.itemIcon = ir.registerIcon("yogpstop_qp:statusChecker");
-		this.ile = ir.registerIcon("yogpstop_qp:listEditor");
-		this.ils = ir.registerIcon("yogpstop_qp:liquidSelector");
+	public String getTextureFile() {
+		return "/mods/yogpstop_qp/textures/textures.png";
 	}
 }

@@ -21,7 +21,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
-import buildcraft.api.gates.IAction;
 import buildcraft.api.gates.ITrigger;
 import buildcraft.api.power.IPowerProvider;
 import buildcraft.api.power.PowerFramework;
@@ -178,7 +177,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 		used = this.pp.useEnergy(pw, pw, true);
 		this.cacheItems.addAll(dropped);
 		this.worldObj.playAuxSFXAtEntity(null, 2001, x, y, z, this.worldObj.getBlockId(x, y, z) | (this.worldObj.getBlockMetadata(x, y, z) << 12));
-		this.worldObj.setBlockToAir(x, y, z);
+		this.worldObj.setBlock(x, y, z, 0);
 
 		return true;
 	}
@@ -257,7 +256,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 	}
 
 	@Override
-	public final boolean allowAction(IAction action) {
+	public final boolean allowActions() {
 		return false;
 	}
 
@@ -283,7 +282,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 		try {
 			createStackedBlockMethod = S_getMethodRepeating(cls);
 		} catch (NoClassDefFoundError e) {
-			throw new NoClassDefFoundError(String.format("yogpstop:%d:%d-%s-%s-%s", b.blockID, meta, cls.getName(), b.getUnlocalizedName(), e.getMessage()));
+			throw new NoClassDefFoundError(String.format("yogpstop:%d:%d-%s-%s-%s", b.blockID, meta, cls.getName(), b.getBlockName(), e.getMessage()));
 		}
 		createStackedBlockMethod.setAccessible(true);
 		return (ItemStack) createStackedBlockMethod.invoke(b, meta);
@@ -358,7 +357,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 	public final void doWork() {}
 
 	@Override
-	public final int powerRequest(ForgeDirection from) {
+	public final int powerRequest() {
 		return (int) Math.ceil(Math.min(getPowerProvider().getMaxEnergyReceived(), getPowerProvider().getMaxEnergyStored()
 				- getPowerProvider().getEnergyStored()));
 	}

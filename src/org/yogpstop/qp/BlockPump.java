@@ -11,14 +11,12 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -26,13 +24,11 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class BlockPump extends BlockContainer {
 
-	private Icon textureTop, textureBottom, textureSide, texW, texC;
-
 	public BlockPump(int i) {
 		super(i, Material.iron);
 		setHardness(5F);
 		setCreativeTab(tabBuildCraft);
-		setUnlocalizedName("PumpPlus");
+		setBlockName("PumpPlus");
 	}
 
 	@Override
@@ -41,37 +37,31 @@ public class BlockPump extends BlockContainer {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public Icon getIcon(int i, int j) {
+	public int getBlockTextureFromSideAndMetadata(int i, int j) {
 		switch (i) {
 		case 0:
-			return this.textureBottom;
+			return 65;
 		case 1:
-			return this.textureTop;
+			return 66;
 		default:
-			return this.textureSide;
+			return 64;
 		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getBlockTexture(IBlockAccess ba, int x, int y, int z, int side) {
+	public int getBlockTexture(IBlockAccess ba, int x, int y, int z, int side) {
 		TileEntity tile = ba.getBlockTileEntity(x, y, z);
 		if (tile instanceof TilePump && side == 1) {
-			if (((TilePump) tile).G_working()) return this.texW;
-			if (((TilePump) tile).G_connected() != null) return this.texC;
+			if (((TilePump) tile).G_working()) return 68;
+			if (((TilePump) tile).G_connected() != null) return 67;
 		}
 		return super.getBlockTexture(ba, x, y, z, side);
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister) {
-		this.textureTop = par1IconRegister.registerIcon("yogpstop_qp:pump_top");
-		this.textureBottom = par1IconRegister.registerIcon("yogpstop_qp:pump_bottom");
-		this.textureSide = par1IconRegister.registerIcon("yogpstop_qp:pump_side");
-		this.texW = par1IconRegister.registerIcon("yogpstop_qp:pump_top_w");
-		this.texC = par1IconRegister.registerIcon("yogpstop_qp:pump_top_c");
+	public String getTextureFile() {
+		return "/mods/yogpstop_qp/textures/textures.png";
 	}
 
 	private final ArrayList<ItemStack> drop = new ArrayList<ItemStack>();
@@ -99,9 +89,9 @@ public class BlockPump extends BlockContainer {
 	}
 
 	@Override
-	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el, ItemStack stack) {
-		super.onBlockPlacedBy(w, x, y, z, el, stack);
-		((TilePump) w.getBlockTileEntity(x, y, z)).G_init(stack.getEnchantmentTagList());
+	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el) {
+		super.onBlockPlacedBy(w, x, y, z, el);
+		((TilePump) w.getBlockTileEntity(x, y, z)).G_init(el.getHeldItem().getEnchantmentTagList());
 	}
 
 	@Override

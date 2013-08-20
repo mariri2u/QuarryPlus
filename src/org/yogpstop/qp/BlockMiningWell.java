@@ -10,21 +10,18 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
 public class BlockMiningWell extends BlockContainer {
-	Icon textureFront, textureBack, textureTop, texW;
 
 	public BlockMiningWell(int par1) {
 		super(par1, Material.ground);
@@ -32,7 +29,7 @@ public class BlockMiningWell extends BlockContainer {
 		setResistance(10F);
 		setCreativeTab(tabBuildCraft);
 		setStepSound(soundStoneFootstep);
-		setUnlocalizedName("MiningWellPlus");
+		setBlockName("MiningWellPlus");
 	}
 
 	@Override
@@ -41,40 +38,34 @@ public class BlockMiningWell extends BlockContainer {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister) {
-		this.textureFront = par1IconRegister.registerIcon("yogpstop_qp:miningwell_front");
-		this.blockIcon = par1IconRegister.registerIcon("yogpstop_qp:miningwell");
-		this.textureBack = par1IconRegister.registerIcon("yogpstop_qp:miningwell_back");
-		this.textureTop = par1IconRegister.registerIcon("yogpstop_qp:miningwell_top");
-		this.texW = par1IconRegister.registerIcon("yogpstop_qp:miningwell_top_w");
+	public String getTextureFile() {
+		return "/mods/yogpstop_qp/textures/textures.png";
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getBlockTexture(IBlockAccess ba, int x, int y, int z, int side) {
+	public int getBlockTexture(IBlockAccess ba, int x, int y, int z, int side) {
 		TileEntity tile = ba.getBlockTileEntity(x, y, z);
-		if (tile instanceof TileMiningWell && side == 1 && ((TileMiningWell) tile).G_isWorking()) return this.texW;
+		if (tile instanceof TileMiningWell && side == 1 && ((TileMiningWell) tile).G_isWorking()) return 52;
 		return super.getBlockTexture(ba, x, y, z, side);
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public Icon getIcon(int i, int j) {
-		if (j == 0 && i == 3) return this.textureFront;
-		if (i == 1) return this.textureTop;
-		else if (i == 0) return this.textureBack;
-		else if (i == j) return this.textureFront;
-		else if (j >= 0 && j < 6 && ForgeDirection.values()[j].getOpposite().ordinal() == i) return this.textureBack;
-		else return this.blockIcon;
+	public int getBlockTextureFromSideAndMetadata(int i, int j) {
+		if (j == 0 && i == 3) return 49;
+		if (i == 1) return 51;
+		else if (i == 0) return 50;
+		else if (i == j) return 49;
+		else if (j >= 0 && j < 6 && ForgeDirection.values()[j].getOpposite().ordinal() == i) return 50;
+		else return 48;
 	}
 
 	@Override
-	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el, ItemStack stack) {
-		super.onBlockPlacedBy(w, x, y, z, el, stack);
+	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el) {
+		super.onBlockPlacedBy(w, x, y, z, el);
 		ForgeDirection orientation = get2dOrientation(el.posX, el.posZ, x, z);
-		w.setBlockMetadataWithNotify(x, y, z, orientation.getOpposite().ordinal(), 1);
-		((TileMiningWell) w.getBlockTileEntity(x, y, z)).G_init(stack.getEnchantmentTagList());
+		w.setBlockMetadata(x, y, z, orientation.getOpposite().ordinal());
+		((TileMiningWell) w.getBlockTileEntity(x, y, z)).G_init(el.getHeldItem().getEnchantmentTagList());
 	}
 
 	private static ForgeDirection get2dOrientation(double x1, double z1, double x2, double z2) {

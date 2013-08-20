@@ -17,11 +17,9 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.ForgeChunkManager.Type;
-
+import buildcraft.BuildCraftCore;
 import buildcraft.api.core.IAreaProvider;
-import buildcraft.api.core.LaserKind;
 import buildcraft.core.EntityBlock;
-import buildcraft.core.proxy.CoreProxy;
 
 public class TileMarker extends APacketTile implements IAreaProvider {
 
@@ -133,34 +131,34 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 			deleteLaser(w);
 			this.lasers = new EntityBlock[12];
 			if (this.xn != this.xx) {
-				this.lasers[0] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.5D, this.yn + 0.45D, this.zn + 0.45D, this.xx - this.xn, 0.1, 0.1, LaserKind.Red);
-				this.lasers[1] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.5D, this.yn + 0.45D, this.zx + 0.45D, this.xx - this.xn, 0.1, 0.1, LaserKind.Red);
-				this.lasers[2] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.5D, this.yx + 0.45D, this.zn + 0.45D, this.xx - this.xn, 0.1, 0.1, LaserKind.Red);
-				this.lasers[3] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.5D, this.yx + 0.45D, this.zx + 0.45D, this.xx - this.xn, 0.1, 0.1, LaserKind.Red);
+				this.lasers[0] = new EntityBlock(w, this.xn + 0.5D, this.yn + 0.45D, this.zn + 0.45D, this.xx - this.xn, 0.1, 0.1,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[1] = new EntityBlock(w, this.xn + 0.5D, this.yn + 0.45D, this.zx + 0.45D, this.xx - this.xn, 0.1, 0.1,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[2] = new EntityBlock(w, this.xn + 0.5D, this.yx + 0.45D, this.zn + 0.45D, this.xx - this.xn, 0.1, 0.1,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[3] = new EntityBlock(w, this.xn + 0.5D, this.yx + 0.45D, this.zx + 0.45D, this.xx - this.xn, 0.1, 0.1,
+						BuildCraftCore.redLaserTexture);
 			}
 			if (this.yn != this.yx) {
-				this.lasers[4] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.45D, this.yn + 0.5D, this.zn + 0.45D, 0.1, this.yx - this.yn, 0.1, LaserKind.Red);
-				this.lasers[5] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.45D, this.yn + 0.5D, this.zx + 0.45D, 0.1, this.yx - this.yn, 0.1, LaserKind.Red);
-				this.lasers[6] = CoreProxy.proxy
-						.newEntityBlock(w, this.xx + 0.45D, this.yn + 0.5D, this.zn + 0.45D, 0.1, this.yx - this.yn, 0.1, LaserKind.Red);
-				this.lasers[7] = CoreProxy.proxy
-						.newEntityBlock(w, this.xx + 0.45D, this.yn + 0.5D, this.zx + 0.45D, 0.1, this.yx - this.yn, 0.1, LaserKind.Red);
+				this.lasers[4] = new EntityBlock(w, this.xn + 0.45D, this.yn + 0.5D, this.zn + 0.45D, 0.1, this.yx - this.yn, 0.1,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[5] = new EntityBlock(w, this.xn + 0.45D, this.yn + 0.5D, this.zx + 0.45D, 0.1, this.yx - this.yn, 0.1,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[6] = new EntityBlock(w, this.xx + 0.45D, this.yn + 0.5D, this.zn + 0.45D, 0.1, this.yx - this.yn, 0.1,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[7] = new EntityBlock(w, this.xx + 0.45D, this.yn + 0.5D, this.zx + 0.45D, 0.1, this.yx - this.yn, 0.1,
+						BuildCraftCore.redLaserTexture);
 			}
 			if (this.zn != this.zx) {
-				this.lasers[8] = CoreProxy.proxy
-						.newEntityBlock(w, this.xn + 0.45D, this.yn + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn, LaserKind.Red);
-				this.lasers[9] = CoreProxy.proxy
-						.newEntityBlock(w, this.xx + 0.45D, this.yn + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn, LaserKind.Red);
-				this.lasers[10] = CoreProxy.proxy.newEntityBlock(w, this.xn + 0.45D, this.yx + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn,
-						LaserKind.Red);
-				this.lasers[11] = CoreProxy.proxy.newEntityBlock(w, this.xx + 0.45D, this.yx + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn,
-						LaserKind.Red);
+				this.lasers[8] = new EntityBlock(w, this.xn + 0.45D, this.yn + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[9] = new EntityBlock(w, this.xx + 0.45D, this.yn + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[10] = new EntityBlock(w, this.xn + 0.45D, this.yx + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn,
+						BuildCraftCore.redLaserTexture);
+				this.lasers[11] = new EntityBlock(w, this.xx + 0.45D, this.yx + 0.45D, this.zn + 0.5D, 0.1, 0.1, this.zx - this.zn,
+						BuildCraftCore.redLaserTexture);
 			}
 			for (EntityBlock eb : this.lasers)
 				if (eb != null) w.spawnEntityInWorld(eb);
@@ -210,7 +208,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 	public void removeFromWorld() {
 		if (this.obj == null) {
 			QuarryPlus.blockMarker.dropBlockAsItem(this.worldObj, this.xCoord, this.yCoord, this.zCoord, QuarryPlus.blockMarker.blockID, 0);
-			this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
+			this.worldObj.setBlock(this.xCoord, this.yCoord, this.zCoord, 0);
 			return;
 		}
 		Link l = this.obj;
@@ -240,7 +238,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 			removeFromWorld(l, this.worldObj.getBlockTileEntity(l.xx, l.yx, l.zx), ret);
 		} else {
 			ret.addAll(QuarryPlus.blockMarker.getBlockDropped(this.worldObj, this.xCoord, this.yCoord, this.zCoord, 0, 0));
-			this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
+			this.worldObj.setBlock(this.xCoord, this.yCoord, this.zCoord, 0);
 		}
 		return ret;
 	}
@@ -319,19 +317,19 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 		if (powered) {
 			this.slasers = new EntityBlock[3];
 			if (this.obj == null) {
-				this.slasers[0] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D, this.zCoord + 0.45D,
-						MAX_SIZE * 2 + 0.5D, 0.1, 0.1, LaserKind.Blue);
-				this.slasers[1] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D, Math.max(0, this.yCoord - MAX_SIZE) + 0.5D,
-						this.zCoord + 0.45D, 0.1, 256, 0.1, LaserKind.Blue);
-				this.slasers[2] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D, this.zCoord - MAX_SIZE + 0.5D, 0.1,
-						0.1, MAX_SIZE * 2 + 0.5D, LaserKind.Blue);
+				this.slasers[0] = new EntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D, this.zCoord + 0.45D, MAX_SIZE * 2 + 0.5D,
+						0.1, 0.1, BuildCraftCore.blueLaserTexture);
+				this.slasers[1] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, Math.max(0, this.yCoord - MAX_SIZE) + 0.5D, this.zCoord + 0.45D, 0.1,
+						256, 0.1, BuildCraftCore.blueLaserTexture);
+				this.slasers[2] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D, this.zCoord - MAX_SIZE + 0.5D, 0.1, 0.1,
+						MAX_SIZE * 2 + 0.5D, BuildCraftCore.blueLaserTexture);
 			} else {
-				if (this.obj.xn == this.obj.xx) this.slasers[0] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D,
-						this.yCoord + 0.45D, this.zCoord + 0.45D, MAX_SIZE * 2 + 0.5D, 0.1, 0.1, LaserKind.Blue);
-				if (this.obj.yn == this.obj.yx) this.slasers[1] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D,
-						Math.max(0, this.yCoord - MAX_SIZE) + 0.5D, this.zCoord + 0.45D, 0.1, 256, 0.1, LaserKind.Blue);
-				if (this.obj.zn == this.obj.zx) this.slasers[2] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D,
-						this.zCoord - MAX_SIZE + 0.5D, 0.1, 0.1, MAX_SIZE * 2 + 0.5D, LaserKind.Blue);
+				if (this.obj.xn == this.obj.xx) this.slasers[0] = new EntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D,
+						this.zCoord + 0.45D, MAX_SIZE * 2 + 0.5D, 0.1, 0.1, BuildCraftCore.blueLaserTexture);
+				if (this.obj.yn == this.obj.yx) this.slasers[1] = new EntityBlock(this.worldObj, this.xCoord + 0.45D,
+						Math.max(0, this.yCoord - MAX_SIZE) + 0.5D, this.zCoord + 0.45D, 0.1, 256, 0.1, BuildCraftCore.blueLaserTexture);
+				if (this.obj.zn == this.obj.zx) this.slasers[2] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D, this.zCoord
+						- MAX_SIZE + 0.5D, 0.1, 0.1, MAX_SIZE * 2 + 0.5D, BuildCraftCore.blueLaserTexture);
 			}
 			for (EntityBlock eb : this.slasers)
 				if (eb != null) this.worldObj.spawnEntityInWorld(eb);
@@ -413,19 +411,19 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 		if (!powered) return;
 		this.slasers = new EntityBlock[3];
 		if (this.obj == null) {
-			this.slasers[0] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D, this.zCoord + 0.45D,
-					MAX_SIZE * 2 + 0.5D, 0.1, 0.1, LaserKind.Blue);
-			this.slasers[1] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D, Math.max(0, this.yCoord - MAX_SIZE) + 0.5D,
-					this.zCoord + 0.45D, 0.1, 256, 0.1, LaserKind.Blue);
-			this.slasers[2] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D, this.zCoord - MAX_SIZE + 0.5D, 0.1, 0.1,
-					MAX_SIZE * 2 + 0.5D, LaserKind.Blue);
+			this.slasers[0] = new EntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D, this.zCoord + 0.45D, MAX_SIZE * 2 + 0.5D, 0.1,
+					0.1, BuildCraftCore.blueLaserTexture);
+			this.slasers[1] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, Math.max(0, this.yCoord - MAX_SIZE) + 0.5D, this.zCoord + 0.45D, 0.1, 256,
+					0.1, BuildCraftCore.blueLaserTexture);
+			this.slasers[2] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D, this.zCoord - MAX_SIZE + 0.5D, 0.1, 0.1,
+					MAX_SIZE * 2 + 0.5D, BuildCraftCore.blueLaserTexture);
 		} else {
-			if (this.obj.xn == this.obj.xx) this.slasers[0] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D,
-					this.zCoord + 0.45D, MAX_SIZE * 2 + 0.5D, 0.1, 0.1, LaserKind.Blue);
-			if (this.obj.yn == this.obj.yx) this.slasers[1] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D,
-					Math.max(0, this.yCoord - MAX_SIZE) + 0.5D, this.zCoord + 0.45D, 0.1, 256, 0.1, LaserKind.Blue);
-			if (this.obj.zn == this.obj.zx) this.slasers[2] = CoreProxy.proxy.newEntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D,
-					this.zCoord - MAX_SIZE + 0.5D, 0.1, 0.1, MAX_SIZE * 2 + 0.5D, LaserKind.Blue);
+			if (this.obj.xn == this.obj.xx) this.slasers[0] = new EntityBlock(this.worldObj, this.xCoord - MAX_SIZE + 0.5D, this.yCoord + 0.45D,
+					this.zCoord + 0.45D, MAX_SIZE * 2 + 0.5D, 0.1, 0.1, BuildCraftCore.blueLaserTexture);
+			if (this.obj.yn == this.obj.yx) this.slasers[1] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, Math.max(0, this.yCoord - MAX_SIZE) + 0.5D,
+					this.zCoord + 0.45D, 0.1, 256, 0.1, BuildCraftCore.blueLaserTexture);
+			if (this.obj.zn == this.obj.zx) this.slasers[2] = new EntityBlock(this.worldObj, this.xCoord + 0.45D, this.yCoord + 0.45D, this.zCoord - MAX_SIZE
+					+ 0.5D, 0.1, 0.1, MAX_SIZE * 2 + 0.5D, BuildCraftCore.blueLaserTexture);
 		}
 		for (EntityBlock eb : this.slasers)
 			if (eb != null) this.worldObj.spawnEntityInWorld(eb);
@@ -487,7 +485,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 		if (isMine(l, tx)) {
 			((TileMarker) tx).obj = null;
 			QuarryPlus.blockMarker.dropBlockAsItem(tx.worldObj, tx.xCoord, tx.yCoord, tx.zCoord, QuarryPlus.blockMarker.blockID, 0);
-			tx.worldObj.setBlockToAir(tx.xCoord, tx.yCoord, tx.zCoord);
+			tx.worldObj.setBlock(tx.xCoord, tx.yCoord, tx.zCoord, 0);
 		}
 	}
 
@@ -495,7 +493,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 		if (isMine(l, tx)) {
 			((TileMarker) tx).obj = null;
 			c.addAll(QuarryPlus.blockMarker.getBlockDropped(tx.worldObj, tx.xCoord, tx.yCoord, tx.zCoord, 0, 0));
-			tx.worldObj.setBlockToAir(tx.xCoord, tx.yCoord, tx.zCoord);
+			tx.worldObj.setBlock(tx.xCoord, tx.yCoord, tx.zCoord, 0);
 		}
 	}
 

@@ -32,8 +32,8 @@ public class GuiManual extends GuiScreen {
 
 	@Override
 	public void initGui() {
-		this.buttonList.add(new GuiButton(-1, this.width / 2 - 150, this.height - 26, 140, 20, StatCollector.translateToLocal("gui.done")));
-		this.buttonList.add(new GuiButton(-2, this.width / 2 + 10, this.height - 26, 140, 20, StatCollector.translateToLocal("gui.cancel")));
+		this.controlList.add(new GuiButton(-1, this.width / 2 - 150, this.height - 26, 140, 20, StatCollector.translateToLocal("gui.done")));
+		this.controlList.add(new GuiButton(-2, this.width / 2 + 10, this.height - 26, 140, 20, StatCollector.translateToLocal("gui.cancel")));
 		this.blockid = new GuiTextField(this.fontRenderer, this.width / 2 - 50, 50, 100, 20);
 		this.meta = new GuiTextField(this.fontRenderer, this.width / 2 - 50, 80, 100, 20);
 		this.blockid.setFocused(true);

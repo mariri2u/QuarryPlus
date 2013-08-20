@@ -10,21 +10,18 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
 public class BlockQuarry extends BlockContainer {
-	Icon textureTop, textureFront, texBB, texNNB, texMF;
 
 	public BlockQuarry(int i) {
 		super(i, Material.iron);
@@ -32,7 +29,7 @@ public class BlockQuarry extends BlockContainer {
 		setResistance(10F);
 		setStepSound(soundStoneFootstep);
 		setCreativeTab(tabBuildCraft);
-		setUnlocalizedName("QuarryPlus");
+		setBlockName("QuarryPlus");
 	}
 
 	private final ArrayList<ItemStack> drop = new ArrayList<ItemStack>();
@@ -61,18 +58,18 @@ public class BlockQuarry extends BlockContainer {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getBlockTexture(IBlockAccess ba, int x, int y, int z, int side) {
+	public int getBlockTexture(IBlockAccess ba, int x, int y, int z, int side) {
 		TileEntity tile = ba.getBlockTileEntity(x, y, z);
 		if (tile instanceof TileQuarry) {
 			if (side == 1) {
 				switch (((TileQuarry) tile).G_getNow()) {
 				case TileQuarry.BREAKBLOCK:
 				case TileQuarry.MOVEHEAD:
-					return this.texBB;
+					return 5;
 				case TileQuarry.MAKEFRAME:
-					return this.texMF;
+					return 4;
 				case TileQuarry.NOTNEEDBREAK:
-					return this.texNNB;
+					return 3;
 				}
 			}
 		}
@@ -81,28 +78,22 @@ public class BlockQuarry extends BlockContainer {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getIcon(int i, int j) {
-		if (j == 0 && i == 3) return this.textureFront;
+	public int getBlockTextureFromSideAndMetadata(int i, int j) {
+		if (j == 0 && i == 3) return 1;
 
-		if (i == j) return this.textureFront;
+		if (i == j) return 1;
 
 		switch (i) {
 		case 1:
-			return this.textureTop;
+			return 2;
 		default:
-			return this.blockIcon;
+			return 0;
 		}
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister) {
-		this.blockIcon = par1IconRegister.registerIcon("yogpstop_qp:quarry");
-		this.textureTop = par1IconRegister.registerIcon("yogpstop_qp:quarry_top");
-		this.textureFront = par1IconRegister.registerIcon("yogpstop_qp:quarry_front");
-		this.texBB = par1IconRegister.registerIcon("yogpstop_qp:quarry_top_bb");
-		this.texNNB = par1IconRegister.registerIcon("yogpstop_qp:quarry_top_nnb");
-		this.texMF = par1IconRegister.registerIcon("yogpstop_qp:quarry_top_mf");
+	public String getTextureFile() {
+		return "/mods/yogpstop_qp/textures/textures.png";
 	}
 
 	@Override
@@ -111,11 +102,11 @@ public class BlockQuarry extends BlockContainer {
 	}
 
 	@Override
-	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el, ItemStack stack) {
-		super.onBlockPlacedBy(w, x, y, z, el, stack);
+	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el) {
+		super.onBlockPlacedBy(w, x, y, z, el);
 		ForgeDirection orientation = get2dOrientation(el.posX, el.posZ, x, z);
-		w.setBlockMetadataWithNotify(x, y, z, orientation.getOpposite().ordinal(), 1);
-		((TileQuarry) w.getBlockTileEntity(x, y, z)).G_init(stack.getEnchantmentTagList());
+		w.setBlockMetadata(x, y, z, orientation.getOpposite().ordinal());
+		((TileQuarry) w.getBlockTileEntity(x, y, z)).G_init(el.getHeldItem().getEnchantmentTagList());
 	}
 
 	private static ForgeDirection get2dOrientation(double x1, double z1, double x2, double z2) {
