@@ -1,9 +1,8 @@
 package org.yogpstop.qp;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 
 import com.google.common.io.ByteArrayDataInput;
 
@@ -411,7 +410,8 @@ public class TilePump extends APacketTile implements ITankContainer {
 								fs = new LiquidStack(Block.lavaStill, LiquidContainerRegistry.BUCKET_VOLUME);
 							}
 							if (fs != null) {
-								if (this.liquids.contains(fs)) this.liquids.get(this.liquids.indexOf(fs)).amount += fs.amount;
+								LiquidStack fsn = getSameLiquid(fs);
+								if (fsn != null) fsn.amount += fs.amount;
 								else this.liquids.add(fs);
 								fs = null;
 							} else this.worldObj.setBlock(bx + this.xOffset, this.currentHeight, bz + this.zOffset, 0);
@@ -429,7 +429,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private final LinkedList<LiquidStack> liquids = new LinkedList<LiquidStack>();
+	private final ArrayList<LiquidStack> liquids = new ArrayList<LiquidStack>();
 	private final String[] mapping = new String[ForgeDirection.VALID_DIRECTIONS.length];
 
 	public String[] C_getNames() {
@@ -445,6 +445,12 @@ public class TilePump extends APacketTile implements ITankContainer {
 		for (LiquidStack fs : this.liquids)
 			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(key, 0))) return fs.amount;
 		return 0;
+	}
+
+	private LiquidStack getSameLiquid(LiquidStack key) {
+		for (LiquidStack fs : this.liquids)
+			if (fs.isLiquidEqual(key)) return fs;
+		return null;
 	}
 
 	static String fdToString(ForgeDirection fd) {
@@ -466,15 +472,21 @@ public class TilePump extends APacketTile implements ITankContainer {
 		}
 	}
 
+	private static String findLiquidName(LiquidStack fs) {
+		for (Entry<String, LiquidStack> entry : LiquidDictionary.getLiquids().entrySet())
+			if (fs.isLiquidEqual(entry.getValue())) return entry.getKey();
+		return null;
+	}
+
 	String incl(int side) {
 		boolean match = false;
 		for (LiquidStack fs : this.liquids) {
 			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(this.mapping[side], 0))) match = true;
-			else if (match) return this.mapping[side] = LiquidDictionary.findLiquidName(fs);
+			else if (match) return this.mapping[side] = findLiquidName(fs);
 		}
 		try {
-			this.mapping[side] = LiquidDictionary.findLiquidName(this.liquids.getFirst());
-		} catch (NoSuchElementException e) {
+			this.mapping[side] = findLiquidName(this.liquids.get(0));
+		} catch (IndexOutOfBoundsException e) {
 			this.mapping[side] = null;
 		}
 		return this.mapping[side];
@@ -497,9 +509,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	private LiquidStack getFluidStack(ForgeDirection fd) {
 		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return null;
-		int index = this.liquids.indexOf(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
-		if (index < 0 || index >= this.liquids.size()) return null;
-		return this.liquids.get(index);
+		return getSameLiquid(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
 	}
 
 	@Override
