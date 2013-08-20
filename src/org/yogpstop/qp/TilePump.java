@@ -500,7 +500,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 	}
 
 	private LiquidStack getFluidStack(ForgeDirection fd) {
-		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return null;
+		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return getFluidStack(ForgeDirection.UP);
 		return getSameLiquid(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
 	}
 
