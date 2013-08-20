@@ -5,8 +5,8 @@ import static org.yogpstop.qp.QuarryPlus.getname;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiSlot;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.src.GuiSlot;
+import net.minecraft.src.Tessellator;
 
 public class GuiSlotList extends GuiSlot {
 	private GuiList parent;

@@ -9,10 +9,10 @@
 
 package org.yogpstop.qp;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.src.Entity;
+import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.TileEntity;
+import net.minecraft.src.World;
 import buildcraft.BuildCraftFactory;
 import buildcraft.core.EntityBlock;
 

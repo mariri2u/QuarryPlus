@@ -7,9 +7,9 @@ import java.util.List;
 
 import com.google.common.io.ByteArrayDataInput;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.src.Block;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 import static buildcraft.BuildCraftFactory.plainPipeBlock;
 import static buildcraft.core.utils.Utils.addToRandomPipeEntry;

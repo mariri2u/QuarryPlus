@@ -1,17 +1,17 @@
 package org.yogpstop.qp;
 
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import net.minecraft.src.Block;
+import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.Material;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.World;
 
 public class BlockMover extends Block {
 
 	public BlockMover(int par1) {
 		super(par1, Material.iron);
 		setHardness(1.2F);
-		this.setCreativeTab(tabBuildCraft);
+		setCreativeTab(CreativeTabs.tabDecorations);
 		setBlockName("EnchantMover");
 	}
 

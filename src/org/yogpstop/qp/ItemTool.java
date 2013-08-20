@@ -1,18 +1,16 @@
 package org.yogpstop.qp;
 
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
-
 import java.util.List;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.world.World;
+import cpw.mods.fml.common.asm.SideOnly;
+import cpw.mods.fml.common.Side;
+import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.Item;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.NBTTagList;
+import net.minecraft.src.World;
 
 public class ItemTool extends Item {
 
@@ -21,7 +19,7 @@ public class ItemTool extends Item {
 		setMaxStackSize(1);
 		setHasSubtypes(true);
 		this.setMaxDamage(0);
-		setCreativeTab(tabBuildCraft);
+		setCreativeTab(CreativeTabs.tabTools);
 	}
 
 	@Override

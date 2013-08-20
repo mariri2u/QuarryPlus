@@ -1,8 +1,8 @@
 package org.yogpstop.qp;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.Packet;
+import net.minecraft.src.TileEntity;
 
 import com.google.common.io.ByteArrayDataInput;
 

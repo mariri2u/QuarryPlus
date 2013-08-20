@@ -1,7 +1,7 @@
 package org.yogpstop.qp;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.Container;
 
 public class ContainerDummy extends Container {
 	int xCoord, yCoord, zCoord;

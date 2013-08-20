@@ -4,10 +4,10 @@ import org.yogpstop.qp.PacketHandler;
 import org.yogpstop.qp.QuarryPlus;
 import org.yogpstop.qp.TileBasic;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.util.StatCollector;
+import net.minecraft.src.GuiButton;
+import net.minecraft.src.GuiScreen;
+import net.minecraft.src.GuiTextField;
+import net.minecraft.src.StatCollector;
 
 import static org.yogpstop.qp.QuarryPlus.getname;
 import static org.yogpstop.qp.QuarryPlus.data;

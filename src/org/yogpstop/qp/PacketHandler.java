@@ -5,14 +5,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 
-import net.minecraft.inventory.Container;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.src.Container;
+import net.minecraft.src.CompressedStreamTools;
+import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.INetworkManager;
+import net.minecraft.src.Packet;
+import net.minecraft.src.Packet250CustomPayload;
+import net.minecraft.src.TileEntity;
+import net.minecraft.src.EntityPlayer;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;

@@ -3,9 +3,9 @@ package org.yogpstop.qp.client;
 import org.yogpstop.qp.PacketHandler;
 import org.yogpstop.qp.TileBasic;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.StatCollector;
+import net.minecraft.src.GuiButton;
+import net.minecraft.src.GuiScreen;
+import net.minecraft.src.StatCollector;
 
 public class GuiList extends GuiScreen {
 	private GuiSlotList oreslot;

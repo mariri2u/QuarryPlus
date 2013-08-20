@@ -3,20 +3,20 @@ package org.yogpstop.qp.client;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
+import net.minecraft.src.GuiButton;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.GuiContainer;
+import net.minecraft.src.Packet250CustomPayload;
+import net.minecraft.src.StatCollector;
+import net.minecraft.src.World;
 
 import org.lwjgl.opengl.GL11;
 import org.yogpstop.qp.ContainerMover;
 import org.yogpstop.qp.PacketHandler;
 
+import cpw.mods.fml.common.asm.SideOnly;
+import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.relauncher.SideOnly;
-import cpw.mods.fml.relauncher.Side;
 
 @SideOnly(Side.CLIENT)
 public class GuiMover extends GuiContainer {

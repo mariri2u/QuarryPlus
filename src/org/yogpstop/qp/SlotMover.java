@@ -1,10 +1,10 @@
 package org.yogpstop.qp;
 
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.src.Container;
+import net.minecraft.src.IInventory;
+import net.minecraft.src.Slot;
+import net.minecraft.src.Item;
+import net.minecraft.src.ItemStack;
 
 public class SlotMover extends Slot {
 	Container parentsC;
@@ -19,11 +19,11 @@ public class SlotMover extends Slot {
 	public boolean isItemValid(ItemStack is) {
 		switch (this.slotNumber) {
 		case 0:
-			if (is.itemID == Item.pickaxeDiamond.itemID) { return true; }
+			if (is.itemID == Item.pickaxeDiamond.shiftedIndex) { return true; }
 			return false;
 		case 1:
 			if (is.itemID == QuarryPlus.blockQuarry.blockID || is.itemID == QuarryPlus.blockMiningWell.blockID || is.itemID == QuarryPlus.blockPump.blockID
-					|| (is.itemID == QuarryPlus.itemTool.itemID && is.getItemDamage() == 1)) { return true; }
+					|| (is.itemID == QuarryPlus.itemTool.shiftedIndex && is.getItemDamage() == 1)) { return true; }
 		}
 		return false;
 	}

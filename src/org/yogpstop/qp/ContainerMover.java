@@ -2,16 +2,16 @@ package org.yogpstop.qp;
 
 import org.yogpstop.qp.client.GuiMover;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryBasic;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.world.World;
+import net.minecraft.src.Enchantment;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.Container;
+import net.minecraft.src.IInventory;
+import net.minecraft.src.InventoryBasic;
+import net.minecraft.src.Slot;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.NBTTagList;
+import net.minecraft.src.World;
 
 import com.google.common.io.ByteArrayDataInput;
 
@@ -68,8 +68,8 @@ public class ContainerMover extends Container {
 	}
 
 	@Override
-	public void detectAndSendChanges() {
-		super.detectAndSendChanges();
+	public void updateCraftingResults() {
+		super.updateCraftingResults();
 		if (this.gui != null) {
 			checkInventory();
 		}
@@ -184,7 +184,7 @@ public class ContainerMover extends Container {
 		short qid;
 		if (quarryIs != null) {
 			if (quarryIs.itemID == QuarryPlus.blockPump.blockID && (id == 33 || id == 35)) return false;
-			if (quarryIs.itemID == QuarryPlus.itemTool.itemID) list = true;
+			if (quarryIs.itemID == QuarryPlus.itemTool.shiftedIndex) list = true;
 			NBTTagList quarryE = quarryIs.getEnchantmentTagList();
 			if (quarryE != null) {
 				for (int i = 0; i < quarryE.tagCount(); i++) {

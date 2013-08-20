@@ -13,11 +13,11 @@ import buildcraft.api.gates.ITrigger;
 import buildcraft.api.gates.ITriggerProvider;
 import buildcraft.api.recipes.AssemblyRecipe;
 import buildcraft.api.transport.IPipe;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
+import net.minecraft.src.Block;
+import net.minecraft.src.Item;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.TileEntity;
+import net.minecraft.src.StatCollector;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.Property;
@@ -94,11 +94,11 @@ public class QuarryPlus implements ITriggerProvider {
 
 	@Mod.Init
 	public void init(FMLInitializationEvent event) {
-		GameRegistry.registerBlock(blockQuarry, "QuarryPlus");
-		GameRegistry.registerBlock(blockMarker, "MarkerPlus");
-		GameRegistry.registerBlock(blockMover, "EnchantMover");
-		GameRegistry.registerBlock(blockMiningWell, "MiningWellPlus");
-		GameRegistry.registerBlock(blockPump, "PumpPlus");
+		GameRegistry.registerBlock(blockQuarry);
+		GameRegistry.registerBlock(blockMarker);
+		GameRegistry.registerBlock(blockMover);
+		GameRegistry.registerBlock(blockMiningWell);
+		GameRegistry.registerBlock(blockPump);
 
 		GameRegistry.registerTileEntity(TileQuarry.class, "QuarryPlus");
 		GameRegistry.registerTileEntity(TileMarker.class, "MarkerPlus");

@@ -3,22 +3,22 @@ package org.yogpstop.qp;
 import java.util.ArrayList;
 
 import buildcraft.api.tools.IToolWrench;
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
+import cpw.mods.fml.common.asm.SideOnly;
+import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.Packet3Chat;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.src.BlockContainer;
+import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.Material;
+import net.minecraft.src.EntityLiving;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.Item;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.Packet3Chat;
+import net.minecraft.src.TileEntity;
+import net.minecraft.src.StatCollector;
+import net.minecraft.src.IBlockAccess;
+import net.minecraft.src.World;
 import net.minecraftforge.common.ForgeDirection;
 
 public class BlockQuarry extends BlockContainer {
@@ -28,7 +28,7 @@ public class BlockQuarry extends BlockContainer {
 		setHardness(1.5F);
 		setResistance(10F);
 		setStepSound(soundStoneFootstep);
-		setCreativeTab(tabBuildCraft);
+		setCreativeTab(CreativeTabs.tabRedstone);
 		setBlockName("QuarryPlus");
 	}
 

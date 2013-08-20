@@ -3,17 +3,17 @@ package org.yogpstop.qp;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import static buildcraft.BuildCraftCore.markerModel;
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.network.packet.Packet3Chat;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.src.BlockContainer;
+import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.Material;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.Item;
+import net.minecraft.src.Packet3Chat;
+import net.minecraft.src.TileEntity;
+import net.minecraft.src.AxisAlignedBB;
+import net.minecraft.src.StatCollector;
+import net.minecraft.src.IBlockAccess;
+import net.minecraft.src.World;
 import net.minecraftforge.common.ForgeDirection;
 
 public class BlockMarker extends BlockContainer {
@@ -21,7 +21,7 @@ public class BlockMarker extends BlockContainer {
 	public BlockMarker(int i) {
 		super(i, Material.circuits);
 		setLightValue(0.5F);
-		setCreativeTab(tabBuildCraft);
+		setCreativeTab(CreativeTabs.tabRedstone);
 		setBlockName("MarkerPlus");
 		this.blockIndexInTexture = 16;
 	}
@@ -81,7 +81,7 @@ public class BlockMarker extends BlockContainer {
 	}
 
 	@Override
-	public int onBlockPlaced(World world, int x, int y, int z, int side, float par6, float par7, float par8, int meta) {
+	public int func_85104_a(World world, int x, int y, int z, int side, float par6, float par7, float par8, int meta) {
 		return side;
 	}
 
@@ -128,9 +128,9 @@ public class BlockMarker extends BlockContainer {
 	}
 
 	@Override
-	public void onPostBlockPlaced(World world, int x, int y, int z, int meta) {
+	public void func_85105_g(World world, int x, int y, int z, int meta) {
 		((TileMarker) world.getBlockTileEntity(x, y, z)).requestTicket();
-		super.onPostBlockPlaced(world, x, y, z, meta);
+		super.func_85105_g(world, x, y, z, meta);
 	}
 
 	@Override

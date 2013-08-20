@@ -1,7 +1,7 @@
 package org.yogpstop.qp;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
+import net.minecraft.src.TileEntity;
+import net.minecraft.src.StatCollector;
 import buildcraft.api.gates.Trigger;
 import buildcraft.api.gates.ITriggerParameter;
 import buildcraft.core.DefaultProps;

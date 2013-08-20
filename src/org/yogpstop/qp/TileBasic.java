@@ -12,14 +12,14 @@ import java.util.List;
 
 import com.google.common.io.ByteArrayDataInput;
 
-import net.minecraft.block.Block;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.src.Block;
+import net.minecraft.src.Enchantment;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.NBTTagList;
+import net.minecraft.src.NBTTagLong;
+import net.minecraft.src.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import buildcraft.api.gates.ITrigger;
 import buildcraft.api.power.IPowerProvider;
