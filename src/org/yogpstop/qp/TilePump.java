@@ -436,7 +436,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 		String[] ret = new String[this.mapping.length];
 		LiquidStack ls;
 		for (int i = 0; i < ret.length; i++) {
-			ls = getSameLiquid(LiquidDictionary.getLiquid(this.mapping[i], 0));
+			ls = getSameLiquid(getLiquid(this.mapping[i]));
 			ret[i] = StatCollector.translateToLocalFormatted("chat.pumpitem", fdToString(ForgeDirection.getOrientation(i)), this.mapping[i], ls == null ? 0
 					: ls.amount);
 		}
@@ -471,6 +471,18 @@ public class TilePump extends APacketTile implements ITankContainer {
 	private static String findLiquidName(LiquidStack fs) {
 		for (Entry<String, LiquidStack> entry : LiquidDictionary.getLiquids().entrySet())
 			if (fs.isLiquidEqual(entry.getValue())) return entry.getKey();
+		return new StringBuilder().append(fs.itemID).append(':').append(fs.itemMeta).toString();
+	}
+
+	private static LiquidStack getLiquid(String s) {
+		LiquidStack ret = LiquidDictionary.getLiquid(s, 0);
+		if (ret != null) return ret;
+		else if (s.contains(":")) {
+			String[] spl = s.split(":");
+			try {
+				return new LiquidStack(Integer.valueOf(spl[0]), 0, Integer.valueOf(spl[1]));
+			} catch (NumberFormatException e) {}
+		}
 		return null;
 	}
 
@@ -478,7 +490,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 		if (this.liquids.isEmpty()) return this.mapping[side] = null;
 		boolean match = false;
 		for (LiquidStack fs : this.liquids) {
-			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(this.mapping[side], 0))) match = true;
+			if (fs.isLiquidEqual(getLiquid(this.mapping[side]))) match = true;
 			else if (match) return this.mapping[side] = findLiquidName(fs);
 		}
 		return this.mapping[side] = findLiquidName(this.liquids.get(0));
@@ -501,7 +513,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	private LiquidStack getFluidStack(ForgeDirection fd) {
 		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return null;
-		return getSameLiquid(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
+		return getSameLiquid(getLiquid(this.mapping[fd.ordinal()]));
 	}
 
 	@Override
