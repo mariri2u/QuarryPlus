@@ -443,7 +443,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	private int getFluidAmount(String key) {
 		for (LiquidStack fs : this.liquids)
-			if (fs.equals(LiquidDictionary.getLiquid(key, 0))) return fs.amount;
+			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(key, 0))) return fs.amount;
 		return 0;
 	}
 
@@ -469,7 +469,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 	String incl(int side) {
 		boolean match = false;
 		for (LiquidStack fs : this.liquids) {
-			if (fs.equals(LiquidDictionary.getLiquid(this.mapping[side], 0))) match = true;
+			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(this.mapping[side], 0))) match = true;
 			else if (match) return this.mapping[side] = LiquidDictionary.findLiquidName(fs);
 		}
 		try {
@@ -506,7 +506,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 	public ILiquidTank getTank(ForgeDirection fd, LiquidStack type) {
 		ILiquidTank[] ilda = getTanks(fd);
 		if (ilda == null) return null;
-		if (type == null || type.equals(ilda[0])) return ilda[0];
+		if (type == null || type.isLiquidEqual(ilda[0].getLiquid())) return ilda[0];
 		return null;
 	}
 
