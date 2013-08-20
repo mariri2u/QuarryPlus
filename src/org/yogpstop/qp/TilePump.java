@@ -434,17 +434,13 @@ public class TilePump extends APacketTile implements ITankContainer {
 
 	public String[] C_getNames() {
 		String[] ret = new String[this.mapping.length];
+		LiquidStack ls;
 		for (int i = 0; i < ret.length; i++) {
-			ret[i] = StatCollector.translateToLocalFormatted("chat.pumpitem", fdToString(ForgeDirection.getOrientation(i)), this.mapping[i],
-					getFluidAmount(this.mapping[i]));
+			ls = getSameLiquid(LiquidDictionary.getLiquid(this.mapping[i], 0));
+			ret[i] = StatCollector.translateToLocalFormatted("chat.pumpitem", fdToString(ForgeDirection.getOrientation(i)), this.mapping[i], ls == null ? 0
+					: ls.amount);
 		}
 		return ret;
-	}
-
-	private int getFluidAmount(String key) {
-		for (LiquidStack fs : this.liquids)
-			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(key, 0))) return fs.amount;
-		return 0;
 	}
 
 	private LiquidStack getSameLiquid(LiquidStack key) {
@@ -479,17 +475,13 @@ public class TilePump extends APacketTile implements ITankContainer {
 	}
 
 	String incl(int side) {
+		if (this.liquids.isEmpty()) return this.mapping[side] = null;
 		boolean match = false;
 		for (LiquidStack fs : this.liquids) {
 			if (fs.isLiquidEqual(LiquidDictionary.getLiquid(this.mapping[side], 0))) match = true;
 			else if (match) return this.mapping[side] = findLiquidName(fs);
 		}
-		try {
-			this.mapping[side] = findLiquidName(this.liquids.get(0));
-		} catch (IndexOutOfBoundsException e) {
-			this.mapping[side] = null;
-		}
-		return this.mapping[side];
+		return this.mapping[side] = findLiquidName(this.liquids.get(0));
 	}
 
 	@Override
