@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -22,7 +21,6 @@ import cpw.mods.fml.relauncher.Side;
 @SideOnly(Side.CLIENT)
 public class GuiMover extends GuiContainer {
 	public GuiButton a1, a3, a5;
-	private static final ResourceLocation gui = new ResourceLocation("yogpstop_qp", "textures/gui/mover.png");
 
 	public GuiMover(EntityPlayer player, World world, int x, int y, int z) {
 		super(null);
@@ -58,7 +56,7 @@ public class GuiMover extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.func_110434_K().func_110577_a(gui);
+		this.mc.renderEngine.bindTexture("/mods/yogpstop_qp/textures/gui/mover.png");
 		int l = this.width - this.xSize >> 1;
 		int i1 = this.height - this.ySize >> 1;
 		drawTexturedModalRect(l, i1, 0, 0, this.xSize, this.ySize);

@@ -12,8 +12,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 import static buildcraft.BuildCraftFactory.plainPipeBlock;
-import static buildcraft.core.utils.Utils.addToRandomPipeAround;
-import static buildcraft.core.utils.Utils.addToRandomInventoryAround;
+import static buildcraft.core.utils.Utils.addToRandomPipeEntry;
+import static buildcraft.core.utils.Utils.addToRandomInventory;
 
 public class TileMiningWell extends TileBasic {
 
@@ -51,12 +51,10 @@ public class TileMiningWell extends TileBasic {
 		if (this.working) S_breakBlock(depth);
 		List<ItemStack> cache = new LinkedList<ItemStack>();
 		for (ItemStack is : this.cacheItems) {
-			int added = addToRandomInventoryAround(this.worldObj, this.xCoord, this.yCoord, this.zCoord, is);
+			int added = addToRandomInventory(is, this.worldObj, this.xCoord, this.yCoord, this.zCoord).stackSize;
 			is.stackSize -= added;
 			if (is.stackSize > 0) {
-				added = addToRandomPipeAround(this.worldObj, this.xCoord, this.yCoord, this.zCoord, ForgeDirection.UNKNOWN, is);
-				is.stackSize -= added;
-				if (is.stackSize > 0) cache.add(is);
+				if (!addToRandomPipeEntry(this, ForgeDirection.UNKNOWN, is)) cache.add(is);
 			}
 		}
 		this.cacheItems = cache;

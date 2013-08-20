@@ -14,7 +14,6 @@ import net.minecraft.item.Item;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -120,11 +119,8 @@ public class BlockMarker extends BlockContainer {
 			if (equipped instanceof ItemTool && ep.getCurrentEquippedItem().getItemDamage() == 0) {
 				TileMarker.Link l = ((TileMarker) world.getBlockTileEntity(x, y, z)).obj;
 				if (l == null) return true;
-				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(ChatMessageComponent.func_111066_d(StatCollector.translateToLocal("chat.markerarea"))),
-						(Player) ep);
-				PacketDispatcher.sendPacketToPlayer(
-						new Packet3Chat(
-								ChatMessageComponent.func_111066_d(String.format("x:%d y:%d z:%d - x:%d y:%d z:%d", l.xn, l.yn, l.zn, l.xx, l.yn, l.zn))),
+				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(StatCollector.translateToLocal("chat.markerarea")), (Player) ep);
+				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(String.format("x:%d y:%d z:%d - x:%d y:%d z:%d", l.xn, l.yn, l.zn, l.xx, l.yn, l.zn)),
 						(Player) ep);
 				return true;
 			}

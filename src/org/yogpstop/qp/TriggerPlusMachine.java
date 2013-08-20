@@ -2,11 +2,11 @@ package org.yogpstop.qp;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.ForgeDirection;
+import buildcraft.BuildCraftCore;
+import buildcraft.api.core.IIconProvider;
 import buildcraft.api.gates.ActionManager;
 import buildcraft.api.gates.ITrigger;
 import buildcraft.api.gates.ITriggerParameter;
@@ -21,7 +21,7 @@ public class TriggerPlusMachine implements ITrigger {
 	public TriggerPlusMachine(int pid, boolean active) {
 		this.id = pid;
 		this.active = active;
-		ActionManager.triggers.put(getUniqueTag(), this);
+		ActionManager.triggers[getId()] = this;
 	}
 
 	@Override
@@ -43,10 +43,15 @@ public class TriggerPlusMachine implements ITrigger {
 	}
 
 	@Override
+	public int getIconIndex() {
+		if (this.active) return ActionTriggerIconProvider.Trigger_Machine_Active;
+		return ActionTriggerIconProvider.Trigger_Machine_Inactive;
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getIcon() {
-		if (this.active) return ActionTriggerIconProvider.INSTANCE.getIcon(ActionTriggerIconProvider.Trigger_Machine_Active);
-		return ActionTriggerIconProvider.INSTANCE.getIcon(ActionTriggerIconProvider.Trigger_Machine_Inactive);
+	public IIconProvider getIconProvider() {
+		return BuildCraftCore.instance.actionTriggerIconProvider;
 	}
 
 	@Override
@@ -60,17 +65,8 @@ public class TriggerPlusMachine implements ITrigger {
 	}
 
 	@Override
-	public int getLegacyId() {
+	public int getId() {
 		return this.id;
 	}
-
-	@Override
-	public String getUniqueTag() {
-		return this.active ? "PlusActive" : "PlusDeactive";
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister iconRegister) {}
 
 }

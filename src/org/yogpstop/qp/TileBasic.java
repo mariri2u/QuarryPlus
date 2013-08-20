@@ -20,13 +20,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import buildcraft.api.gates.IAction;
 import buildcraft.api.gates.ITrigger;
-import buildcraft.api.power.PowerHandler;
+import buildcraft.api.power.IPowerProvider;
+import buildcraft.api.power.PowerFramework;
 import buildcraft.api.power.IPowerReceptor;
-import buildcraft.api.power.PowerHandler.PowerReceiver;
 import buildcraft.core.IMachine;
 
 public abstract class TileBasic extends APacketTile implements IPowerReceptor, IMachine {
@@ -35,7 +34,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 
 	protected ForgeDirection pump = ForgeDirection.UNKNOWN;
 
-	protected PowerHandler pp;
+	protected IPowerProvider pp;
 
 	public final List<Long> fortuneList = new ArrayList<Long>();
 	public final List<Long> silktouchList = new ArrayList<Long>();
@@ -248,7 +247,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 	}
 
 	@Override
-	public final boolean manageFluids() {
+	public final boolean manageLiquids() {
 		return false;
 	}
 
@@ -263,13 +262,18 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 	}
 
 	@Override
-	public final PowerReceiver getPowerReceiver(ForgeDirection side) {
-		return this.pp.getPowerReceiver();
+	public final IPowerProvider getPowerProvider() {
+		return this.pp;
+	}
+
+	@Override
+	public final void setPowerProvider(IPowerProvider provider) {
+		this.pp = provider;
 	}
 
 	private void S_initPowerProvider() {
-		this.pp = new PowerHandler(this, PowerHandler.Type.MACHINE);
-		this.pp.configure(1, 100, 0, 100000);
+		this.pp = PowerFramework.currentFramework.createPowerProvider();
+		this.pp.configure(0, 1, 100, 0, 100000);
 	}
 
 	protected static ItemStack S_createStackedBlock(Block b, int meta) throws SecurityException, NoClassDefFoundError, IllegalAccessException,
@@ -351,10 +355,11 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 	}
 
 	@Override
-	public final void doWork(PowerHandler workProvider) {}
+	public final void doWork() {}
 
 	@Override
-	public World getWorld() {
-		return this.worldObj;
+	public final int powerRequest(ForgeDirection from) {
+		return (int) Math.ceil(Math.min(getPowerProvider().getMaxEnergyReceived(), getPowerProvider().getMaxEnergyStored()
+				- getPowerProvider().getEnergyStored()));
 	}
 }

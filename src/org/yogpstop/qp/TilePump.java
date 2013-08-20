@@ -10,7 +10,7 @@ import com.google.common.io.ByteArrayDataInput;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import buildcraft.BuildCraftFactory;
-import buildcraft.api.power.PowerHandler;
+import buildcraft.api.power.IPowerProvider;
 import buildcraft.core.Box;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFluid;
@@ -22,19 +22,18 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.liquids.ILiquid;
+import net.minecraftforge.liquids.ILiquidTank;
+import net.minecraftforge.liquids.ITankContainer;
+import net.minecraftforge.liquids.LiquidContainerRegistry;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.liquids.LiquidTank;
 
-public class TilePump extends APacketTile implements IFluidHandler {
+public class TilePump extends APacketTile implements ITankContainer {
 	private ForgeDirection connectTo = ForgeDirection.UNKNOWN;
 	private boolean initialized = false;
 
@@ -276,8 +275,9 @@ public class TilePump extends APacketTile implements IFluidHandler {
 			this.quarryRange = false;
 		} else this.range++;
 		PacketDispatcher.sendPacketToPlayer(
-				new Packet3Chat(ChatMessageComponent.func_111066_d(StatCollector.translateToLocalFormatted("chat.pump_rtoggle", this.quarryRange ? "quarry"
-						: Integer.toString(this.range * 2 + 1)))), (Player) ep);
+				new Packet3Chat(
+						StatCollector.translateToLocalFormatted("chat.pump_rtoggle", this.quarryRange ? "quarry" : Integer.toString(this.range * 2 + 1))),
+				(Player) ep);
 		this.count = Integer.MAX_VALUE - 1;
 	}
 
@@ -361,7 +361,7 @@ public class TilePump extends APacketTile implements IFluidHandler {
 		}
 	}
 
-	boolean S_removeLiquids(PowerHandler pp, int x, int y, int z) {
+	boolean S_removeLiquids(IPowerProvider pp, int x, int y, int z) {
 		if (!this.worldObj.getBlockMaterial(x, y, z).isLiquid()) return true;
 		S_sendNowPacket();
 		this.count++;
@@ -370,7 +370,7 @@ public class TilePump extends APacketTile implements IFluidHandler {
 		int frame_count = 0;
 		Block bb;
 		int bx, bz, meta, bid;
-		FluidStack fs = null;
+		LiquidStack fs = null;
 		for (; block_count == 0; this.currentHeight--) {
 			if (this.currentHeight < this.cy) return false;
 			for (bx = 0; bx < this.block_side_x; bx++) {
@@ -400,15 +400,15 @@ public class TilePump extends APacketTile implements IFluidHandler {
 						bb = Block.blocksList[bid];
 						meta = this.ebses[bx >> 4][bz >> 4][this.currentHeight >> 4].getExtBlockMetadata(bx & 0xF, this.currentHeight & 0xF, bz & 0xF);
 						if (isLiquid(bb)) {
-							if (bb instanceof IFluidBlock
-									&& ((IFluidBlock) bb).canDrain(this.worldObj, bx + this.xOffset, this.currentHeight, bz + this.zOffset)) {
-								fs = ((IFluidBlock) bb).drain(this.worldObj, bx + this.xOffset, this.currentHeight, bz + this.zOffset, true);
+							if (bb instanceof ILiquid && ((ILiquid) bb).stillLiquidMeta() == meta) {
+								this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
+								fs = new LiquidStack(((ILiquid) bb).stillLiquidId(), LiquidContainerRegistry.BUCKET_VOLUME, ((ILiquid) bb).stillLiquidMeta());
 							} else if ((bid == Block.waterStill.blockID || bid == Block.waterMoving.blockID) && meta == 0) {
 								this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
-								fs = new FluidStack(FluidRegistry.WATER, FluidContainerRegistry.BUCKET_VOLUME);
+								fs = new LiquidStack(Block.waterStill, LiquidContainerRegistry.BUCKET_VOLUME);
 							} else if ((bid == Block.lavaStill.blockID || bid == Block.lavaMoving.blockID) && meta == 0) {
 								this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
-								fs = new FluidStack(FluidRegistry.LAVA, FluidContainerRegistry.BUCKET_VOLUME);
+								fs = new LiquidStack(Block.lavaStill, LiquidContainerRegistry.BUCKET_VOLUME);
 							}
 							if (fs != null) {
 								if (this.liquids.contains(fs)) this.liquids.get(this.liquids.indexOf(fs)).amount += fs.amount;
@@ -429,7 +429,7 @@ public class TilePump extends APacketTile implements IFluidHandler {
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private final LinkedList<FluidStack> liquids = new LinkedList<FluidStack>();
+	private final LinkedList<LiquidStack> liquids = new LinkedList<LiquidStack>();
 	private final String[] mapping = new String[ForgeDirection.VALID_DIRECTIONS.length];
 
 	public String[] C_getNames() {
@@ -442,8 +442,8 @@ public class TilePump extends APacketTile implements IFluidHandler {
 	}
 
 	private int getFluidAmount(String key) {
-		for (FluidStack fs : this.liquids)
-			if (fs.equals(FluidRegistry.getFluidStack(key, 0))) return fs.amount;
+		for (LiquidStack fs : this.liquids)
+			if (fs.equals(LiquidDictionary.getCanonicalLiquid(key))) return fs.amount;
 		return 0;
 	}
 
@@ -468,11 +468,12 @@ public class TilePump extends APacketTile implements IFluidHandler {
 
 	String incl(int side) {
 		boolean match = false;
-		for (FluidStack fs : this.liquids)
-			if (fs.equals(FluidRegistry.getFluidStack(this.mapping[side], 0))) match = true;
-			else if (match) return this.mapping[side] = FluidRegistry.getFluidName(fs);
+		for (LiquidStack fs : this.liquids) {
+			if (fs.equals(LiquidDictionary.getCanonicalLiquid(this.mapping[side]))) match = true;
+			else if (match) return this.mapping[side] = LiquidDictionary.findLiquidName(fs);
+		}
 		try {
-			this.mapping[side] = FluidRegistry.getFluidName(this.liquids.getFirst());
+			this.mapping[side] = LiquidDictionary.findLiquidName(this.liquids.getFirst());
 		} catch (NoSuchElementException e) {
 			this.mapping[side] = null;
 		}
@@ -480,44 +481,47 @@ public class TilePump extends APacketTile implements IFluidHandler {
 	}
 
 	@Override
-	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
+	public int fill(ForgeDirection from, LiquidStack resource, boolean doFill) {
 		return 0;
 	}
 
 	@Override
-	public FluidStack drain(ForgeDirection fd, FluidStack resource, boolean doDrain) {
-		return drain(fd, resource == null ? 0 : resource.amount, doDrain);
+	public LiquidStack drain(int id, int maxDrain, boolean doDrain) {
+		return null;
 	}
 
 	@Override
-	public boolean canFill(ForgeDirection from, Fluid fluid) {
-		return false;
+	public int fill(int id, LiquidStack resource, boolean doFill) {
+		return 0;
 	}
 
-	private FluidStack getFluidStack(ForgeDirection fd) {
+	private LiquidStack getFluidStack(ForgeDirection fd) {
 		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return null;
-		int index = this.liquids.indexOf(FluidRegistry.getFluidStack(this.mapping[fd.ordinal()], 0));
+		int index = this.liquids.indexOf(LiquidDictionary.getCanonicalLiquid(this.mapping[fd.ordinal()]));
 		if (index < 0 || index >= this.liquids.size()) return null;
 		return this.liquids.get(index);
 	}
 
 	@Override
-	public boolean canDrain(ForgeDirection from, Fluid fluid) {
-		return true;
+	public ILiquidTank getTank(ForgeDirection fd, LiquidStack type) {
+		ILiquidTank[] ilda = getTanks(fd);
+		if (ilda == null) return null;
+		if (type == null || type.equals(ilda[0])) return ilda[0];
+		return null;
 	}
 
 	@Override
-	public FluidTankInfo[] getTankInfo(ForgeDirection fd) {
-		FluidStack fs = getFluidStack(fd);
+	public ILiquidTank[] getTanks(ForgeDirection fd) {
+		LiquidStack fs = getFluidStack(fd);
 		if (fs == null) return null;
-		return new FluidTankInfo[] { new FluidTankInfo(fs, Integer.MAX_VALUE) };
+		return new LiquidTank[] { new LiquidTank(fs, Integer.MAX_VALUE) };
 	}
 
 	@Override
-	public FluidStack drain(ForgeDirection fd, int maxDrain, boolean doDrain) {
-		FluidStack fs = getFluidStack(fd);
+	public LiquidStack drain(ForgeDirection fd, int maxDrain, boolean doDrain) {
+		LiquidStack fs = getFluidStack(fd);
 		if (fs == null) return null;
-		FluidStack ret = fs.copy();
+		LiquidStack ret = fs.copy();
 		ret.amount = Math.min(fs.amount, maxDrain);
 		if (doDrain) fs.amount -= ret.amount;
 		if (fs.amount <= 0) this.liquids.remove(fs);
@@ -527,6 +531,7 @@ public class TilePump extends APacketTile implements IFluidHandler {
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private static final boolean isLiquid(Block b) {
-		return b == null ? false : (b instanceof IFluidBlock || b instanceof BlockFluid || b.blockMaterial.isLiquid());
+		return b == null ? false : (b instanceof ILiquid || b instanceof BlockFluid || b.blockMaterial.isLiquid());
 	}
+
 }
