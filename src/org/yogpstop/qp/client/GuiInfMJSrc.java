@@ -46,10 +46,10 @@ public class GuiInfMJSrc extends GuiScreen {
 		this.eng.setText(Float.toString(this.pw));
 		this.itv = new GuiTextField(this.fontRenderer, (this.width >> 1) - 75, yb + 106, 150, 20);
 		this.itv.setText(Integer.toString(this.it));
-		this.buttonList.add(new GuiButton(1, (this.width >> 1) + 30, yb + 34, 50, 20, "Reset"));
-		this.buttonList.add(new GuiButton(2, (this.width >> 1) + 30, yb + 82, 50, 20, "Reset"));
-		this.buttonList.add(new GuiButton(3, (this.width >> 1) - 75, yb + 144, 150, 20, "Apply"));
-		this.buttonList.add(new GuiButton(4, (this.width >> 1) - 75, yb + 168, 150, 20, this.act ? "Active" : "Deactive"));
+		this.controlList.add(new GuiButton(1, (this.width >> 1) + 30, yb + 34, 50, 20, "Reset"));
+		this.controlList.add(new GuiButton(2, (this.width >> 1) + 30, yb + 82, 50, 20, "Reset"));
+		this.controlList.add(new GuiButton(3, (this.width >> 1) - 75, yb + 144, 150, 20, "Apply"));
+		this.controlList.add(new GuiButton(4, (this.width >> 1) - 75, yb + 168, 150, 20, this.act ? "Active" : "Deactive"));
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class GuiInfMJSrc extends GuiScreen {
 	public void drawScreen(int i, int j, float k) {
 		drawDefaultBackground();
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.renderEngine.bindTexture("/mods/yogpstop_qp/textures/gui/infmjsrc.png");
+		this.mc.renderEngine.bindTexture(this.mc.renderEngine.getTexture("/mods/yogpstop_qp/textures/gui/infmjsrc.png"));
 		int xb = this.width - 176 >> 1;
 		int yb = this.height - 214 >> 1;
 		drawTexturedModalRect(xb, yb, 0, 0, 176, 214);

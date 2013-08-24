@@ -15,7 +15,7 @@ public class BlockInfMJSrc extends BlockContainer {
 		setResistance(10F);
 		setStepSound(soundStoneFootstep);
 		setCreativeTab(tabBuildCraft);
-		setUnlocalizedName("InfMJSrc");
+		setBlockName("InfMJSrc");
 	}
 
 	@Override
