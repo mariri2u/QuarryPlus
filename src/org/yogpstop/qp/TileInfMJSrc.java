@@ -6,7 +6,6 @@ import com.google.common.io.ByteArrayDataInput;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import buildcraft.api.power.IPowerReceptor;
-import buildcraft.api.power.PowerHandler.Type;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,7 +27,7 @@ public class TileInfMJSrc extends APacketTile {
 			int y = this.yCoord + d.offsetY;
 			int z = this.zCoord + d.offsetZ;
 			TileEntity te = this.worldObj.getBlockTileEntity(x, y, z);
-			if (te instanceof IPowerReceptor) ((IPowerReceptor) te).getPowerReceiver(d.getOpposite()).receiveEnergy(Type.ENGINE, this.power, d.getOpposite());
+			if (te instanceof IPowerReceptor) ((IPowerReceptor) te).getPowerProvider().receiveEnergy(this.power, d.getOpposite());
 		}
 		this.cInterval = this.interval;
 	}

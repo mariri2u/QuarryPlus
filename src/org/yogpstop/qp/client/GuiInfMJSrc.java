@@ -9,7 +9,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -24,7 +23,6 @@ public class GuiInfMJSrc extends GuiScreen {
 	private boolean act = false;
 	private float pw;
 	private int it;
-	private static final ResourceLocation gui = new ResourceLocation("yogpstop_qp", "textures/gui/infmjsrc.png");
 	public int x, y, z;
 
 	public GuiInfMJSrc(int ax, int ay, int az, World aw) {
@@ -98,7 +96,7 @@ public class GuiInfMJSrc extends GuiScreen {
 	public void drawScreen(int i, int j, float k) {
 		drawDefaultBackground();
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.func_110434_K().func_110577_a(gui);
+		this.mc.renderEngine.bindTexture("/mods/yogpstop_qp/textures/gui/infmjsrc.png");
 		int xb = this.width - 176 >> 1;
 		int yb = this.height - 214 >> 1;
 		drawTexturedModalRect(xb, yb, 0, 0, 176, 214);
