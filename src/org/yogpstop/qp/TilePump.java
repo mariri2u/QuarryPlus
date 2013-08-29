@@ -116,8 +116,7 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 			pZ = this.liquids.indexOf(LiquidDictionary.getCanonicalLiquid(this.mapping[fd.ordinal()]));
 			if (pZ == -1) continue;
 			fs = this.liquids.get(pZ);
-			te = this.worldObj.getBlockTileEntity(this.xCoord + this.connectTo.offsetX, this.yCoord + this.connectTo.offsetY, this.zCoord
-					+ this.connectTo.offsetZ);
+			te = this.worldObj.getBlockTileEntity(this.xCoord + fd.offsetX, this.yCoord + fd.offsetY, this.zCoord + fd.offsetZ);
 			if (te instanceof ITankContainer && ((ITankContainer) te).fill(fd.getOpposite(), fs, false) == fs.amount) fs.amount -= ((ITankContainer) te).fill(
 					fd.getOpposite(), fs, true);
 		}
@@ -165,8 +164,7 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		if (this.worldObj.isRemote) return;
 		TileEntity te;
 		for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
-			te = this.worldObj.getBlockTileEntity(this.xCoord + this.connectTo.offsetX, this.yCoord + this.connectTo.offsetY, this.zCoord
-					+ this.connectTo.offsetZ);
+			te = this.worldObj.getBlockTileEntity(this.xCoord + fd.offsetX, this.yCoord + fd.offsetY, this.zCoord + fd.offsetZ);
 			if (te instanceof TileBasic && ((TileBasic) te).S_connect(fd.getOpposite())) {
 				this.connectTo = fd;
 				S_sendNowPacket();
