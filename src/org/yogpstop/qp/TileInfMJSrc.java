@@ -5,6 +5,7 @@ import org.yogpstop.qp.client.GuiInfMJSrc;
 import com.google.common.io.ByteArrayDataInput;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
+import buildcraft.api.power.IPowerProvider;
 import buildcraft.api.power.IPowerReceptor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,12 +23,13 @@ public class TileInfMJSrc extends APacketTile {
 	public void updateEntity() {
 		if (!this.active) return;
 		if (--this.cInterval > 0) return;
+		TileEntity te;
 		for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-			int x = this.xCoord + d.offsetX;
-			int y = this.yCoord + d.offsetY;
-			int z = this.zCoord + d.offsetZ;
-			TileEntity te = this.worldObj.getBlockTileEntity(x, y, z);
-			if (te instanceof IPowerReceptor) ((IPowerReceptor) te).getPowerProvider().receiveEnergy(this.power, d.getOpposite());
+			te = this.worldObj.getBlockTileEntity(this.xCoord + d.offsetX, this.yCoord + d.offsetY, this.zCoord + d.offsetZ);
+			if (te instanceof IPowerReceptor) {
+				IPowerProvider pr = ((IPowerReceptor) te).getPowerProvider();
+				if (pr != null) pr.receiveEnergy(this.power, d.getOpposite());
+			}
 		}
 		this.cInterval = this.interval;
 	}

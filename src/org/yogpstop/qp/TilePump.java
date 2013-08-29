@@ -8,8 +8,9 @@ import com.google.common.io.ByteArrayDataInput;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import buildcraft.BuildCraftFactory;
+import static buildcraft.BuildCraftFactory.frameBlock;
 import buildcraft.api.power.IPowerProvider;
+import buildcraft.api.power.IPowerReceptor;
 import buildcraft.core.Box;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFluid;
@@ -32,45 +33,19 @@ import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.liquids.LiquidTank;
 
-public class TilePump extends APacketTile implements ITankContainer {
+public class TilePump extends APacketTile implements ITankContainer, IPowerReceptor {
 	private ForgeDirection connectTo = ForgeDirection.UNKNOWN;
 	private boolean initialized = false;
 
 	private byte prev = (byte) ForgeDirection.UNKNOWN.ordinal();
 
-	static double CE_R;
-	static double BP_R;
-	static double CE_F;
-	static double BP_F;
-
-	protected byte efficiency;
+	protected byte unbreaking;
+	protected byte fortune;
+	protected boolean silktouch;
 
 	TileBasic G_connected() {
-		int pX = this.xCoord;
-		int pY = this.yCoord;
-		int pZ = this.zCoord;
-		switch (this.connectTo) {
-		case UP:
-			pY++;
-			break;
-		case DOWN:
-			pY--;
-			break;
-		case SOUTH:
-			pZ++;
-			break;
-		case NORTH:
-			pZ--;
-			break;
-		case EAST:
-			pX++;
-			break;
-		case WEST:
-			pX--;
-			break;
-		default:
-		}
-		TileEntity te = this.worldObj.getBlockTileEntity(pX, pY, pZ);
+		TileEntity te = this.worldObj.getBlockTileEntity(this.xCoord + this.connectTo.offsetX, this.yCoord + this.connectTo.offsetY, this.zCoord
+				+ this.connectTo.offsetZ);
 		if (te instanceof TileBasic) return (TileBasic) te;
 		this.connectTo = ForgeDirection.UNKNOWN;
 		S_sendNowPacket();
@@ -84,7 +59,9 @@ public class TilePump extends APacketTile implements ITankContainer {
 	@Override
 	public void readFromNBT(NBTTagCompound nbttc) {
 		super.readFromNBT(nbttc);
-		this.efficiency = nbttc.getByte("efficiency");
+		this.silktouch = nbttc.getBoolean("silktouch");
+		this.fortune = nbttc.getByte("fortune");
+		this.unbreaking = nbttc.getByte("unbreaking");
 		this.connectTo = ForgeDirection.values()[nbttc.getByte("connectTo")];
 		if (nbttc.getTag("mapping0") instanceof NBTTagString) {
 			this.mapping[0] = nbttc.getString("mapping0");
@@ -97,12 +74,21 @@ public class TilePump extends APacketTile implements ITankContainer {
 		this.range = nbttc.getByte("range");
 		this.quarryRange = nbttc.getBoolean("quarryRange");
 		this.prev = (byte) (this.connectTo.ordinal() | (G_working() ? 0x80 : 0));
+		if (this.silktouch) {
+			this.liquids.clear();
+			NBTTagList nbttl = nbttc.getTagList("liquids");
+			for (int i = 0; i < nbttl.tagCount(); i++) {
+				this.liquids.add(LiquidStack.loadLiquidStackFromNBT((NBTTagCompound) nbttl.tagAt(i)));
+			}
+		}
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbttc) {
 		super.writeToNBT(nbttc);
-		nbttc.setByte("efficiency", this.efficiency);
+		nbttc.setBoolean("silktouch", this.silktouch);
+		nbttc.setByte("fortune", this.fortune);
+		nbttc.setByte("unbreaking", this.unbreaking);
 		nbttc.setByte("connectTo", (byte) this.connectTo.ordinal());
 		nbttc.setString("mapping0", this.mapping[0] == null ? "null" : this.mapping[0]);
 		nbttc.setString("mapping1", this.mapping[1] == null ? "null" : this.mapping[1]);
@@ -112,39 +98,33 @@ public class TilePump extends APacketTile implements ITankContainer {
 		nbttc.setString("mapping5", this.mapping[5] == null ? "null" : this.mapping[5]);
 		nbttc.setByte("range", this.range);
 		nbttc.setBoolean("quarryRange", this.quarryRange);
+		if (this.silktouch) {
+			NBTTagList nbttl = new NBTTagList();
+			for (LiquidStack l : this.liquids)
+				nbttl.appendTag(l.writeToNBT(new NBTTagCompound()));
+			nbttc.setTag("liquids", nbttl);
+		}
 	}
 
 	@Override
 	public void updateEntity() {
 		super.updateEntity();
-		if (this.worldObj.isRemote || this.initialized) return;
 		int pX, pY, pZ;
 		TileEntity te;
-
-		pX = this.xCoord;
-		pY = this.yCoord;
-		pZ = this.zCoord;
-		switch (this.connectTo) {
-		case UP:
-			pY++;
-			break;
-		case DOWN:
-			pY--;
-			break;
-		case SOUTH:
-			pZ++;
-			break;
-		case NORTH:
-			pZ--;
-			break;
-		case EAST:
-			pX++;
-			break;
-		case WEST:
-			pX--;
-			break;
-		default:
+		LiquidStack fs;
+		for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
+			pZ = this.liquids.indexOf(LiquidDictionary.getCanonicalLiquid(this.mapping[fd.ordinal()]));
+			if (pZ == -1) continue;
+			fs = this.liquids.get(pZ);
+			te = this.worldObj.getBlockTileEntity(this.xCoord + this.connectTo.offsetX, this.yCoord + this.connectTo.offsetY, this.zCoord
+					+ this.connectTo.offsetZ);
+			if (te instanceof ITankContainer && ((ITankContainer) te).fill(fd.getOpposite(), fs, false) == fs.amount) fs.amount -= ((ITankContainer) te).fill(
+					fd.getOpposite(), fs, true);
 		}
+		if (this.worldObj.isRemote || this.initialized) return;
+		pX = this.xCoord + this.connectTo.offsetX;
+		pY = this.yCoord + this.connectTo.offsetY;
+		pZ = this.zCoord + this.connectTo.offsetZ;
 		te = this.worldObj.getBlockTileEntity(pX, pY, pZ);
 		if (te instanceof TileBasic && ((TileBasic) te).S_connect(this.connectTo.getOpposite())) {
 			S_sendNowPacket();
@@ -157,12 +137,16 @@ public class TilePump extends APacketTile implements ITankContainer {
 	}
 
 	void S_setEnchantment(ItemStack is) {
-		if (this.efficiency > 0) is.addEnchantment(Enchantment.enchantmentsList[32], this.efficiency);
+		if (this.silktouch) is.addEnchantment(Enchantment.enchantmentsList[33], 1);
+		if (this.unbreaking > 0) is.addEnchantment(Enchantment.enchantmentsList[34], this.unbreaking);
+		if (this.fortune > 0) is.addEnchantment(Enchantment.enchantmentsList[35], this.fortune);
 	}
 
 	public List<String> C_getEnchantments() {
 		ArrayList<String> als = new ArrayList<String>();
-		if (this.efficiency > 0) als.add(Enchantment.enchantmentsList[32].getTranslatedName(this.efficiency));
+		if (this.silktouch) als.add(Enchantment.enchantmentsList[33].getTranslatedName(1));
+		if (this.unbreaking > 0) als.add(Enchantment.enchantmentsList[34].getTranslatedName(this.unbreaking));
+		if (this.fortune > 0) als.add(Enchantment.enchantmentsList[35].getTranslatedName(this.fortune));
 		return als;
 	}
 
@@ -170,41 +154,19 @@ public class TilePump extends APacketTile implements ITankContainer {
 		if (nbttl != null) for (int i = 0; i < nbttl.tagCount(); i++) {
 			short id = ((NBTTagCompound) nbttl.tagAt(i)).getShort("id");
 			short lvl = ((NBTTagCompound) nbttl.tagAt(i)).getShort("lvl");
-			if (id == 32) this.efficiency = (byte) lvl;
+			if (id == 33) this.silktouch = true;
+			if (id == 34) this.unbreaking = (byte) lvl;
+			if (id == 35) this.fortune = (byte) lvl;
 		}
 		G_reinit();
 	}
 
 	void G_reinit() {
 		if (this.worldObj.isRemote) return;
-		int pX, pY, pZ;
 		TileEntity te;
 		for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
-			pX = this.xCoord;
-			pY = this.yCoord;
-			pZ = this.zCoord;
-			switch (fd) {
-			case UP:
-				pY++;
-				break;
-			case DOWN:
-				pY--;
-				break;
-			case SOUTH:
-				pZ++;
-				break;
-			case NORTH:
-				pZ--;
-				break;
-			case EAST:
-				pX++;
-				break;
-			case WEST:
-				pX--;
-				break;
-			default:
-			}
-			te = this.worldObj.getBlockTileEntity(pX, pY, pZ);
+			te = this.worldObj.getBlockTileEntity(this.xCoord + this.connectTo.offsetX, this.yCoord + this.connectTo.offsetY, this.zCoord
+					+ this.connectTo.offsetZ);
 			if (te instanceof TileBasic && ((TileBasic) te).S_connect(fd.getOpposite())) {
 				this.connectTo = fd;
 				S_sendNowPacket();
@@ -248,8 +210,8 @@ public class TilePump extends APacketTile implements ITankContainer {
 	private ExtendedBlockStorage[][][] ebses;
 	private int xOffset, yOffset, zOffset, currentHeight = Integer.MIN_VALUE;
 	private int cx, cy = -1, cz;
-	private byte range = 8;
-	private boolean quarryRange = false;
+	private byte range = 0;
+	private boolean quarryRange = true;
 
 	private int block_side_x, block_side_z;
 
@@ -267,7 +229,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 	}
 
 	void S_changeRange(EntityPlayer ep) {
-		if (this.range >= 8) {
+		if (this.range >= this.fortune * 2) {
 			if (G_connected() instanceof TileQuarry) this.quarryRange = true;
 			this.range = 0;
 		} else if (this.quarryRange) {
@@ -360,7 +322,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 		}
 	}
 
-	boolean S_removeLiquids(IPowerProvider pp, int x, int y, int z) {
+	boolean S_removeLiquids(IPowerProvider tbpp, int x, int y, int z) {
 		if (!this.worldObj.getBlockMaterial(x, y, z).isLiquid()) return true;
 		S_sendNowPacket();
 		this.count++;
@@ -388,10 +350,10 @@ public class TilePump extends APacketTile implements ITankContainer {
 			}
 		}
 		this.currentHeight++;
-		float p = (float) (block_count * BP_R / Math.pow(CE_R, this.efficiency) + frame_count * BP_F / Math.pow(CE_F, this.efficiency));
-		float used = pp.useEnergy(p, p, false);
+		float p = (float) (block_count * 10D / (this.unbreaking + 1) + frame_count * 25D / (this.unbreaking + 1));
+		float used = tbpp.useEnergy(p, p, false);
 		if (used == p) {
-			used = pp.useEnergy(p, p, true);
+			used = tbpp.useEnergy(p, p, true);
 			for (bx = 0; bx < this.block_side_x; bx++) {
 				for (bz = 0; bz < this.block_side_z; bz++) {
 					if (this.blocks[this.currentHeight - this.yOffset][bx][bz] != 0) {
@@ -416,7 +378,7 @@ public class TilePump extends APacketTile implements ITankContainer {
 								fs = null;
 							} else this.worldObj.setBlockToAir(bx + this.xOffset, this.currentHeight, bz + this.zOffset);
 							if ((this.blocks[this.currentHeight - this.yOffset][bx][bz] & 0x40) != 0) this.worldObj.setBlock(bx + this.xOffset,
-									this.currentHeight, bz + this.zOffset, BuildCraftFactory.frameBlock.blockID);
+									this.currentHeight, bz + this.zOffset, frameBlock.blockID);
 						}
 					}
 				}
@@ -523,4 +485,21 @@ public class TilePump extends APacketTile implements ITankContainer {
 		return b == null ? false : (b instanceof ILiquid || b instanceof BlockFluid || b.blockMaterial.isLiquid());
 	}
 
+	@Override
+	public void setPowerProvider(IPowerProvider provider) {}
+
+	@Override
+	public IPowerProvider getPowerProvider() {
+		TileBasic tb = G_connected();
+		return tb == null ? null : tb.getPowerProvider();
+	}
+
+	@Override
+	public void doWork() {}
+
+	@Override
+	public int powerRequest(ForgeDirection from) {
+		return (int) Math.ceil(Math.min(getPowerProvider().getMaxEnergyReceived(), getPowerProvider().getMaxEnergyStored()
+				- getPowerProvider().getEnergyStored()));
+	}
 }

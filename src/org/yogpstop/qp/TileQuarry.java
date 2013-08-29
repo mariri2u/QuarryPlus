@@ -13,7 +13,6 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 
 import buildcraft.api.core.IAreaProvider;
 import buildcraft.api.core.LaserKind;
-
 import static buildcraft.BuildCraftFactory.frameBlock;
 import buildcraft.core.Box;
 import buildcraft.core.proxy.CoreProxy;
@@ -36,15 +35,6 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class TileQuarry extends TileBasic {
 	private int targetX, targetY, targetZ;
-
-	static double CE_BB;
-	static double BP_BB;
-	static double CE_MF;
-	static double BP_MF;
-	static double CE_MH;
-	static double BP_MH;
-	static double CF;
-	static double CS;
 
 	private IAreaProvider iap = null;
 
@@ -101,6 +91,10 @@ public class TileQuarry extends TileBasic {
 			return true;
 		case NOTNEEDBREAK:
 			if (this.targetY < this.box.yMin) {
+				this.pp.configure(0, (int) (50 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (25 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (15000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
 				this.now = MAKEFRAME;
 				this.targetX = this.box.xMin;
 				this.targetY = this.box.yMax;
@@ -121,6 +115,10 @@ public class TileQuarry extends TileBasic {
 			return true;
 		case MAKEFRAME:
 			if (this.targetY < this.box.yMin) {
+				this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (500 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (15000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
 				this.now = MOVEHEAD;
 				this.targetX = this.box.xMin + 1;
 				this.targetY = this.box.yMin;
@@ -136,6 +134,10 @@ public class TileQuarry extends TileBasic {
 			}
 			if (this.worldObj.getBlockMaterial(this.targetX, this.targetY, this.targetZ).isSolid()
 					&& (bid != frameBlock.blockID || this.worldObj.getBlockMetadata(this.targetX, this.targetY, this.targetZ) != 0)) {
+				this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (500 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+						(int) (15000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
 				this.now = NOTNEEDBREAK;
 				this.targetX = this.box.xMin;
 				this.targetZ = this.box.zMin;
@@ -243,7 +245,7 @@ public class TileQuarry extends TileBasic {
 
 	private boolean S_makeFrame() {
 		this.digged = true;
-		float power = (float) Math.max(BP_MF / Math.pow(CE_MF, this.efficiency), 0D);
+		float power = (float) Math.max(25D / (this.unbreaking + 1), 0D);
 		float used = this.pp.useEnergy(power, power, false);
 		if (used != power) return false;
 		used = this.pp.useEnergy(power, power, true);
@@ -254,7 +256,7 @@ public class TileQuarry extends TileBasic {
 
 	private boolean S_breakBlock() {
 		this.digged = true;
-		if (S_breakBlock(this.targetX, this.targetY, this.targetZ, BP_BB, CE_BB, CS, CF)) {
+		if (S_breakBlock(this.targetX, this.targetY, this.targetZ, 40, 2, 1.3)) {
 			S_checkDropItem();
 			if (this.now == BREAKBLOCK) this.now = MOVEHEAD;
 			S_setNextTarget();
@@ -378,10 +380,9 @@ public class TileQuarry extends TileBasic {
 		double z = this.targetZ - this.headPosZ;
 		double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
 		float pw = (float) Math.max(
-				Math.min(2D + Math.pow(CE_MH, this.efficiency) * this.pp.getEnergyStored() / 500D,
-						((distance - 0.1D) * BP_MH / Math.pow(CE_MH, this.efficiency))), 0D);
+				Math.min(2D + (this.unbreaking + 1) * this.pp.getEnergyStored() / 500D, ((distance - 0.1D) * 200D / (this.unbreaking + 1))), 0D);
 		float used = this.pp.useEnergy(pw, pw, true);
-		double blocks = used * Math.pow(CE_MH, this.efficiency) / BP_MH + 0.1D;
+		double blocks = used * (this.unbreaking + 1) / 200D + 0.1D;
 
 		if (blocks * 2 > distance) {
 			this.headPosX = this.targetX;
@@ -403,6 +404,7 @@ public class TileQuarry extends TileBasic {
 
 	@Override
 	protected void G_destroy() {
+		this.pp.configure(0, 0, 0, 0, Integer.MAX_VALUE);
 		this.now = NONE;
 		if (this.heads != null) {
 			this.heads.setDead();
@@ -418,6 +420,9 @@ public class TileQuarry extends TileBasic {
 
 	@Override
 	protected void G_reinit() {
+		this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+				(int) (500 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)), (int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+				(int) (15000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
 		this.now = NOTNEEDBREAK;
 		G_initEntities();
 		if (!this.worldObj.isRemote) {
@@ -522,6 +527,13 @@ public class TileQuarry extends TileBasic {
 		switch (pattern) {
 		case packetNow:
 			this.now = data.readByte();
+			if (this.now == NONE) this.pp.configure(0, 0, 0, 0, Integer.MAX_VALUE);
+			else if (this.now == MAKEFRAME) this.pp.configure(0, (int) (50 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+					(int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)), (int) (25 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+					(int) (15000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
+			else this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+					(int) (500 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)), (int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
+					(int) (15000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
 			this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 			G_initEntities();
 			break;
