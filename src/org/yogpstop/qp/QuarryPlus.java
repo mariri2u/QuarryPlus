@@ -1,22 +1,15 @@
 package org.yogpstop.qp;
 
-import java.util.LinkedList;
-
 import buildcraft.BuildCraftBuilders;
 import buildcraft.BuildCraftCore;
 import buildcraft.BuildCraftEnergy;
 import buildcraft.BuildCraftFactory;
 import buildcraft.BuildCraftSilicon;
 import buildcraft.BuildCraftTransport;
-import buildcraft.api.gates.ActionManager;
-import buildcraft.api.gates.ITrigger;
-import buildcraft.api.gates.ITriggerProvider;
 import buildcraft.api.recipes.AssemblyRecipe;
-import buildcraft.api.transport.IPipe;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.ForgeChunkManager;
@@ -32,62 +25,53 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 
 @Mod(modid = "QuarryPlus", name = "QuarryPlus", version = "@VERSION@", dependencies = "required-after:BuildCraft|Builders;required-after:BuildCraft|Core;required-after:BuildCraft|Energy;required-after:BuildCraft|Factory;required-after:BuildCraft|Silicon;required-after:BuildCraft|Transport")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { PacketHandler.BTN, PacketHandler.NBT, PacketHandler.OGUI, PacketHandler.Tile }, packetHandler = PacketHandler.class)
-public class QuarryPlus implements ITriggerProvider {
+public class QuarryPlus {
 	@SidedProxy(clientSide = "org.yogpstop.qp.client.ClientProxy", serverSide = "org.yogpstop.qp.CommonProxy")
 	public static CommonProxy proxy;
 
 	@Mod.Instance("QuarryPlus")
 	public static QuarryPlus instance;
 
-	public static Block blockQuarry, blockMarker, blockMover, blockMiningWell, blockPump, blockInfMJSrc;
+	public static Block blockQuarry, blockMarker, blockMover, blockMiningWell, blockPump, blockInfMJSrc, blockRefinery;
 	public static Item itemTool;
 
 	public static int RecipeDifficulty;
 
 	public static final int guiIdInfMJSrc = 1;
 	public static final int guiIdMover = 2;
-	public static final int guiIdFortuneList = 3;
-	public static final int guiIdSilktouchList = 4;
+	public static final int guiIdFList = 3;
+	public static final int guiIdSList = 4;
 
 	@Mod.PreInit
 	public static void preInit(FMLPreInitializationEvent event) throws Exception {
 		Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
+		int[] bid = null;
+		int iid = Integer.MIN_VALUE;
 		try {
 			cfg.load();
-			blockQuarry = (new BlockQuarry(cfg.getBlock("Quarry", 4001).getInt()));
-			blockMarker = (new BlockMarker(cfg.getBlock("Marker", 4002).getInt()));
-			blockMover = (new BlockMover(cfg.getBlock("EnchantMover", 4003).getInt()));
-			blockMiningWell = (new BlockMiningWell(cfg.getBlock("MiningWell", 4004).getInt()));
-			blockPump = (new BlockPump(cfg.getBlock("Pump", 4005).getInt()));
-			blockInfMJSrc = (new BlockInfMJSrc(cfg.getBlock("InfMJSrc", 4006).getInt()));
-			itemTool = (new ItemTool(cfg.getItem("Tools", 18463).getInt()));
-
+			bid = new int[] { cfg.getBlock("Quarry", 4001).getInt(), cfg.getBlock("Marker", 4002).getInt(), cfg.getBlock("EnchantMover", 4003).getInt(),
+					cfg.getBlock("MiningWell", 4004).getInt(), cfg.getBlock("Pump", 4005).getInt(), cfg.getBlock("InfMJSrc", 4006).getInt(),
+					cfg.getBlock("Refinery", 4007).getInt() };
+			iid = cfg.getItem("Tools", 18463).getInt();
 			Property RD = cfg.get(Configuration.CATEGORY_GENERAL, "RecipeDifficulty", 2);
 			RD.comment = "0:AsCheatRecipe,1:EasyRecipe,2:NormalRecipe(Default),3:HardRecipe,other:NormalRecipe";
 			RecipeDifficulty = RD.getInt(2);
-			TileQuarry.CE_BB = cfg.get(Configuration.CATEGORY_GENERAL + ".BreakBlock", "PowerCoefficientWithEfficiency", 1.3D).getDouble(1.3D);
-			TileQuarry.BP_BB = cfg.get(Configuration.CATEGORY_GENERAL + ".BreakBlock", "BasePower", 40D).getDouble(40D);
-			TileQuarry.CE_MF = cfg.get(Configuration.CATEGORY_GENERAL + ".MakeFrame", "PowerCoefficientWithEfficiency", 1.3D).getDouble(1.3D);
-			TileQuarry.BP_MF = cfg.get(Configuration.CATEGORY_GENERAL + ".MakeFrame", "BasePower", 25D).getDouble(25D);
-			TileQuarry.CE_MH = cfg.get(Configuration.CATEGORY_GENERAL + ".MoveHead", "PowerCoefficientWithEfficiency", 1.3D).getDouble(1.3D);
-			TileQuarry.BP_MH = cfg.get(Configuration.CATEGORY_GENERAL + ".MoveHead", "BasePower", 200D).getDouble(200D);
-			TileQuarry.CF = cfg.get(Configuration.CATEGORY_GENERAL + ".BreakBlock", "PowerCoefficientWithFortune", 1.3D).getDouble(1.3D);
-			TileQuarry.CS = cfg.get(Configuration.CATEGORY_GENERAL + ".BreakBlock", "PowerCoefficientWithSilktouch", 2D).getDouble(2D);
-			TileMiningWell.CE = cfg.get(Configuration.CATEGORY_GENERAL + ".MiningWell", "PowerCoefficientWithEfficiency", 1.3D).getDouble(1.3D);
-			TileMiningWell.BP = cfg.get(Configuration.CATEGORY_GENERAL + ".MiningWell", "BasePower", 40D).getDouble(40D);
-			TileMiningWell.CF = cfg.get(Configuration.CATEGORY_GENERAL + ".MiningWell", "PowerCoefficientWithFortune", 1.3D).getDouble(1.3D);
-			TileMiningWell.CS = cfg.get(Configuration.CATEGORY_GENERAL + ".MiningWell", "PowerCoefficientWithSilktouch", 2D).getDouble(2D);
-			TilePump.CE_R = cfg.get(Configuration.CATEGORY_GENERAL + ".Pump.RemoveLiquid", "PowerCoefficientWithEfficiency", 1.3D).getDouble(1.3D);
-			TilePump.BP_R = cfg.get(Configuration.CATEGORY_GENERAL + ".Pump.RemoveLiquid", "BasePower", 10D).getDouble(10D);
-			TilePump.CE_F = cfg.get(Configuration.CATEGORY_GENERAL + ".Pump.MakeFrame", "PowerCoefficientWithEfficiency", 1.3D).getDouble(1.3D);
-			TilePump.BP_F = cfg.get(Configuration.CATEGORY_GENERAL + ".Pump.MakeFrame", "BasePower", 25D).getDouble(25D);
-			cfg.getCategory(Configuration.CATEGORY_GENERAL)
-					.setComment(
-							"PowerCoefficientWith(EnchantName) is Coefficient with correspond enchant.\nWithEfficiency value comes reciprocal number.\nBasePower is basical using power with no enchants.");
 		} catch (Exception e) {
-			throw new Exception("Your QuarryPlus's config file is broken!", e);
+			throw new Exception("Your QuarryPlus's config file is broken. your setting is bad!", e);
 		} finally {
 			cfg.save();
+		}
+		try {
+			blockQuarry = (new BlockQuarry(bid[0]));
+			blockMarker = (new BlockMarker(bid[1]));
+			blockMover = (new BlockMover(bid[2]));
+			blockMiningWell = (new BlockMiningWell(bid[3]));
+			blockPump = (new BlockPump(bid[4]));
+			blockInfMJSrc = (new BlockInfMJSrc(bid[5]));
+			blockRefinery = (new BlockRefinery(bid[6]));
+			itemTool = (new ItemTool(iid));
+		} catch (Exception e) {
+			throw new Exception("Your BlockID or ItemID is invalid. your setting is bad!", e);
 		}
 		LanguageRegistry.instance().loadLocalization("/lang/yogpstop/quarryplus/en_US.lang", "en_US", false);
 		LanguageRegistry.instance().loadLocalization("/lang/yogpstop/quarryplus/ja_JP.lang", "ja_JP", false);
@@ -102,14 +86,14 @@ public class QuarryPlus implements ITriggerProvider {
 		GameRegistry.registerBlock(blockMiningWell, "MiningWellPlus");
 		GameRegistry.registerBlock(blockPump, "PumpPlus");
 		GameRegistry.registerBlock(blockInfMJSrc, "InfMJSrc");
+		GameRegistry.registerBlock(blockRefinery, "RefineryPlus");
 
 		GameRegistry.registerTileEntity(TileQuarry.class, "QuarryPlus");
 		GameRegistry.registerTileEntity(TileMarker.class, "MarkerPlus");
 		GameRegistry.registerTileEntity(TileMiningWell.class, "MiningWellPlus");
 		GameRegistry.registerTileEntity(TilePump.class, "PumpPlus");
 		GameRegistry.registerTileEntity(TileInfMJSrc.class, "InfMJSrc");
-
-		ActionManager.registerTriggerProvider(this);
+		GameRegistry.registerTileEntity(TileRefinery.class, "RefineryPlus");
 
 		switch (RecipeDifficulty) {
 		case 0:
@@ -239,20 +223,5 @@ public class QuarryPlus implements ITriggerProvider {
 
 	public static long data(short id, int meta) {
 		return id | (meta << 12);
-	}
-
-	@Override
-	public LinkedList<ITrigger> getPipeTriggers(IPipe pipe) {
-		return null;
-	}
-
-	@Override
-	public LinkedList<ITrigger> getNeighborTriggers(Block block, TileEntity tile) {
-		LinkedList<ITrigger> res = new LinkedList<ITrigger>();
-		if (tile instanceof TileBasic) {
-			res.add(TileBasic.active);
-			res.add(TileBasic.deactive);
-		}
-		return res;
 	}
 }
