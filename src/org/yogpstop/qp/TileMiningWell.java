@@ -25,10 +25,8 @@ public class TileMiningWell extends TileBasic {
 		switch (pattern) {
 		case packetNow:
 			this.working = data.readBoolean();
-			if (this.working) this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
-					(int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)), (int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
-					(int) (1000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
-			else this.pp.configure(0, 0, 0, 0, Integer.MAX_VALUE);
+			if (this.working) PowerManager.configureW(this.pp, this.efficiency, this.unbreaking);
+			else PowerManager.configure0(this.pp);
 			this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 			break;
 		}
@@ -64,9 +62,7 @@ public class TileMiningWell extends TileBasic {
 		if (bid == 0 || bid == Block.bedrock.blockID || bid == plainPipeBlock.blockID) return false;
 		if (this.pump == ForgeDirection.UNKNOWN && this.worldObj.getBlockMaterial(this.xCoord, depth, this.zCoord).isLiquid()) return false;
 		if (!this.working) {
-			this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
-					(int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)), (int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
-					(int) (1000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
+			PowerManager.configureW(this.pp, this.efficiency, this.unbreaking);
 			this.working = true;
 			sendNowPacket(this, (byte) 1);
 		}
@@ -74,7 +70,7 @@ public class TileMiningWell extends TileBasic {
 	}
 
 	private boolean S_breakBlock(int depth) {
-		return S_breakBlock(this.xCoord, depth, this.zCoord, 40, 2, 1.3);
+		return S_breakBlock(this.xCoord, depth, this.zCoord, PowerManager.BreakType.MiningWell);
 	}
 
 	@Override
@@ -91,9 +87,7 @@ public class TileMiningWell extends TileBasic {
 
 	@Override
 	protected void G_reinit() {
-		this.pp.configure(0, (int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
-				(int) (100 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)), (int) (60 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)),
-				(int) (1000 * Math.pow(1.3, this.efficiency) / (this.unbreaking + 1)));
+		PowerManager.configureW(this.pp, this.efficiency, this.unbreaking);
 		this.working = true;
 		sendNowPacket(this, (byte) 1);
 	}
@@ -101,7 +95,7 @@ public class TileMiningWell extends TileBasic {
 	@Override
 	protected void G_destroy() {
 		if (this.worldObj.isRemote) return;
-		this.pp.configure(0, 0, 0, 0, Integer.MAX_VALUE);
+		PowerManager.configure0(this.pp);
 		this.working = false;
 		sendNowPacket(this, (byte) 0);
 		for (int depth = this.yCoord - 1; depth > 0; depth--) {
