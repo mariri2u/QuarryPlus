@@ -1,5 +1,6 @@
 package org.yogpstop.qp;
 
+import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
@@ -16,6 +17,7 @@ public class BlockInfMJSrc extends BlockContainer {
 		setStepSound(soundStoneFootstep);
 		setCreativeTab(CreativeTabs.tabRedstone);
 		setBlockName("InfMJSrc");
+		this.blockIndexInTexture = Block.portal.blockIndexInTexture;
 	}
 
 	@Override
