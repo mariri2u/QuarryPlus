@@ -132,13 +132,13 @@ public class PowerManager {
 	}
 
 	private static void configure(IPowerProvider pp, double CE, byte E, byte U, double CU, double NR, double XR, double BP, double MS) {
-		pp.configure(0, (int) (NR * Math.pow(CE, E) / (U * CU + 1)), (int) (XR * Math.pow(CE, E) / (U * CU + 1)), (int) (BP * Math.pow(CE, E) / (U * CU + 1)),
+		pp.configure(0, (int) (NR / (U * CU + 1)), (int) (XR * Math.pow(CE, E) / (U * CU + 1)), (int) (BP * Math.pow(CE, E) / (U * CU + 1)),
 				(int) (MS * Math.pow(CE, E) / (U * CU + 1)));
 	}
 
 	private static void configure15(IPowerProvider pp, double CE, byte E, byte U, double CU, double NR, double XR, double BP, double MS) {
-		pp.configure(0, (int) (NR * Math.pow(CE, E) / (U * CU + 1)), (int) (XR * Math.pow(CE, E) / (U * CU + 1)),
-				(int) (BP * 1.5 * Math.pow(CE, E) / (U * CU + 1)), (int) (MS * Math.pow(CE, E) / (U * CU + 1)));
+		pp.configure(0, (int) (NR / (U * CU + 1)), (int) (XR * Math.pow(CE, E) / (U * CU + 1)), (int) (BP * 1.5 * Math.pow(CE, E) / (U * CU + 1)), (int) (MS
+				* Math.pow(CE, E) / (U * CU + 1)));
 	}
 
 	static void configureB(IPowerProvider pp, byte E, byte U) {
