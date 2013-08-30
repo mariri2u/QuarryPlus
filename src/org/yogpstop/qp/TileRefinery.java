@@ -84,6 +84,7 @@ public class TileRefinery extends APacketTile implements ITankContainer, IPowerR
 		this.res = LiquidStack.loadLiquidStackFromNBT(nbttc.getCompoundTag("res"));
 		this.animationSpeed = nbttc.getFloat("animationSpeed");
 		this.animationStage = nbttc.getInteger("animationStage");
+		this.buf = (int) (LiquidContainerRegistry.BUCKET_VOLUME * 4 * Math.pow(1.3, this.fortune));
 	}
 
 	@Override
