@@ -3,10 +3,13 @@ package org.yogpstop.qp.client;
 import org.yogpstop.qp.PacketHandler;
 import org.yogpstop.qp.TileBasic;
 
+import cpw.mods.fml.common.asm.SideOnly;
+import cpw.mods.fml.common.Side;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.StatCollector;
 
+@SideOnly(Side.CLIENT)
 public class GuiList extends GuiScreen {
 	private GuiSlotList oreslot;
 	private GuiButton delete;

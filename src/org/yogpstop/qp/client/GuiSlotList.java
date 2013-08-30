@@ -4,10 +4,13 @@ import static org.yogpstop.qp.QuarryPlus.getname;
 
 import java.util.List;
 
+import cpw.mods.fml.common.asm.SideOnly;
+import cpw.mods.fml.common.Side;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiSlot;
 import net.minecraft.src.Tessellator;
 
+@SideOnly(Side.CLIENT)
 public class GuiSlotList extends GuiSlot {
 	private GuiList parent;
 	public int currentore = 0;
