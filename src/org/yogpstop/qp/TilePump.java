@@ -116,8 +116,7 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 			fs = getSameLiquid(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
 			if (fs == null) continue;
 			te = this.worldObj.getBlockTileEntity(this.xCoord + fd.offsetX, this.yCoord + fd.offsetY, this.zCoord + fd.offsetZ);
-			if (te instanceof ITankContainer && ((ITankContainer) te).fill(fd.getOpposite(), fs, false) == fs.amount) fs.amount -= ((ITankContainer) te).fill(
-					fd.getOpposite(), fs, true);
+			if (te instanceof ITankContainer) fs.amount -= ((ITankContainer) te).fill(fd.getOpposite(), fs, true);
 		}
 		if (this.worldObj.isRemote || this.initialized) return;
 		pX = this.xCoord + this.connectTo.offsetX;
