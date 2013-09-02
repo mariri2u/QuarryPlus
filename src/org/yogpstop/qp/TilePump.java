@@ -493,6 +493,7 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 
 	@Override
 	public int powerRequest(ForgeDirection from) {
+		if (getPowerProvider() == null) return 0;
 		return (int) Math.ceil(Math.min(getPowerProvider().getMaxEnergyReceived(), getPowerProvider().getMaxEnergyStored()
 				- getPowerProvider().getEnergyStored()));
 	}
