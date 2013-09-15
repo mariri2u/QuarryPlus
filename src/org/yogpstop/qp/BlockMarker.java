@@ -17,6 +17,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
 public class BlockMarker extends BlockContainer {
+	private static final ForgeDirection[] m2fd = new ForgeDirection[] { ForgeDirection.DOWN, ForgeDirection.EAST, ForgeDirection.WEST, ForgeDirection.SOUTH,
+			ForgeDirection.NORTH, ForgeDirection.UP };
+	private static final byte[] s2m = new byte[] { 0, 5, 4, 3, 2, 1 };
 
 	public BlockMarker(int i) {
 		super(i, Material.circuits);
@@ -35,7 +38,7 @@ public class BlockMarker extends BlockContainer {
 		double w = 0.15;
 		double h = 0.65;
 
-		ForgeDirection dir = ForgeDirection.getOrientation(meta);
+		ForgeDirection dir = m2fd[meta];
 		switch (dir) {
 		case DOWN:
 			return AxisAlignedBB.getBoundingBox(0.5F - w, 1F - h, 0.5F - w, 0.5F + w, 1F, 0.5F + w);
@@ -82,7 +85,7 @@ public class BlockMarker extends BlockContainer {
 
 	@Override
 	public int onBlockPlaced(World world, int x, int y, int z, int side, float par6, float par7, float par8, int meta) {
-		return side;
+		return s2m[side];
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class BlockMarker extends BlockContainer {
 
 	private void dropTorchIfCantStay(World world, int x, int y, int z) {
 		int meta = world.getBlockMetadata(x, y, z);
-		if (!canPlaceBlockOnSide(world, x, y, z, meta)) {
+		if (!canPlaceBlockOnSide(world, x, y, z, m2fd[meta].ordinal())) {
 			dropBlockAsItem(world, x, y, z, this.blockID, 0);
 			world.setBlock(x, y, z, 0);
 		}

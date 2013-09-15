@@ -220,7 +220,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 	static {
 		Method buf = null;
 		try {
-			buf = Block.class.getDeclaredMethod("func_71880_c_", int.class);
+			buf = Block.class.getDeclaredMethod("f_", int.class);
 			buf.setAccessible(true);
 		} catch (Exception e1) {
 			try {
