@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2012,2013 yogpstop
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the
+ * GNU Lesser General Public License along with this program.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yogpstop.qp;
 
 import java.util.Collection;
@@ -32,8 +49,6 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 	class Link {
 		int xx, xn, yx, yn, zx, zn;
 		EntityBlock[] lasers;
-
-		Link() {}
 
 		Link(World w, int vxx, int vxn, int vyx, int vyn, int vzx, int vzn) {
 			this.xx = vxx;
@@ -342,10 +357,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 	void S_tryConnection() {// onBlockActivated
 		TileEntity tx;
 		if (this.obj != null) this.obj.removeConnection(this.worldObj);
-		this.obj = new Link();
-		this.obj.xx = this.obj.xn = this.xCoord;
-		this.obj.yx = this.obj.yn = this.yCoord;
-		this.obj.zx = this.obj.zn = this.zCoord;
+		this.obj = new Link(this.worldObj, this.xCoord, this.xCoord, this.yCoord, this.yCoord, this.zCoord, this.zCoord);
 		S_renewConnection();
 		if (this.obj.xx == this.obj.xn && this.obj.yx == this.obj.yn && this.obj.zx == this.obj.zn) {
 			this.obj = null;
