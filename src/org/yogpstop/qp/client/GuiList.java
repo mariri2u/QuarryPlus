@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2012,2013 yogpstop
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the
+ * GNU Lesser General Public License along with this program.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yogpstop.qp.client;
 
 import org.yogpstop.qp.PacketHandler;
@@ -32,7 +49,7 @@ public class GuiList extends GuiScreen {
 	@Override
 	public void initGui() {
 		this.controlList.add(new GuiButton(-1, this.width / 2 - 125, this.height - 26, 250, 20, StatCollector.translateToLocal("gui.done")));
-		this.controlList.add(new GuiButton(PacketHandler.fortuneTInc + this.targetid, this.width * 2 / 3 + 10, 50, 100, 20, StatCollector
+		this.controlList.add(new GuiButton(PacketHandler.fortuneTInc + this.targetid, this.width * 2 / 3 + 10, 140, 100, 20, StatCollector
 				.translateToLocal(include() ? "tof.include" : "tof.exclude")));
 		this.controlList.add(new GuiButton(-2, this.width * 2 / 3 + 10, 80, 100, 20, StatCollector.translateToLocal("tof.addnewore") + "("
 				+ StatCollector.translateToLocal("tof.manualinput") + ")"));
