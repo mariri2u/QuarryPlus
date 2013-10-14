@@ -37,7 +37,6 @@ public class GuiInfMJSrc extends GuiScreen {
 
 	private GuiTextField eng;
 	private GuiTextField itv;
-	private boolean act = false;
 	private float pw;
 	private int it;
 	public int x, y, z;
@@ -48,7 +47,6 @@ public class GuiInfMJSrc extends GuiScreen {
 		this.z = az;
 		TileEntity te = aw.getBlockTileEntity(ax, ay, az);
 		if (te instanceof TileInfMJSrc) {
-			this.act = ((TileInfMJSrc) te).active;
 			this.pw = ((TileInfMJSrc) te).power;
 			this.it = ((TileInfMJSrc) te).interval;
 		}
@@ -66,7 +64,6 @@ public class GuiInfMJSrc extends GuiScreen {
 		this.buttonList.add(new GuiButton(1, (this.width >> 1) + 30, yb + 34, 50, 20, "Reset"));
 		this.buttonList.add(new GuiButton(2, (this.width >> 1) + 30, yb + 82, 50, 20, "Reset"));
 		this.buttonList.add(new GuiButton(3, (this.width >> 1) - 75, yb + 144, 150, 20, "Apply"));
-		this.buttonList.add(new GuiButton(4, (this.width >> 1) - 75, yb + 168, 150, 20, this.act ? "Active" : "Deactive"));
 	}
 
 	@Override
@@ -74,7 +71,7 @@ public class GuiInfMJSrc extends GuiScreen {
 		if (!gb.enabled) { return; }
 		switch (gb.id) {
 		case 1:
-			this.eng.setText("10");
+			this.eng.setText("10.0");
 			break;
 		case 2:
 			this.itv.setText("1");
@@ -102,9 +99,6 @@ public class GuiInfMJSrc extends GuiScreen {
 				return;
 			}
 			PacketDispatcher.sendPacketToServer(PacketHandler.makeInfMJSrcPacket(this.x, this.y, this.z, this.pw, this.it));
-			break;
-		case 4:
-			PacketDispatcher.sendPacketToServer(PacketHandler.makeInfMJSrcAPacket(this.x, this.y, this.z, !this.act));
 			break;
 		}
 	}

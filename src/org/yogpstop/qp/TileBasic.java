@@ -97,6 +97,8 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 		}
 	}
 
+	protected abstract void G_renew_powerConfigure();
+
 	protected abstract void G_reinit();
 
 	protected abstract void G_destroy();
@@ -157,6 +159,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 			TileEntity te = this.worldObj.getBlockTileEntity(this.xCoord + this.pump.offsetX, this.yCoord + this.pump.offsetY, this.zCoord + this.pump.offsetZ);
 			if (!(te instanceof TilePump)) {
 				this.pump = ForgeDirection.UNKNOWN;
+				G_renew_powerConfigure();
 				return true;
 			}
 			return ((TilePump) te).S_removeLiquids(this.pp, x, y, z);
@@ -173,6 +176,7 @@ public abstract class TileBasic extends APacketTile implements IPowerReceptor, I
 		TileEntity te = this.worldObj.getBlockTileEntity(this.xCoord + this.pump.offsetX, this.yCoord + this.pump.offsetY, this.zCoord + this.pump.offsetZ);
 		if (te instanceof TilePump && this.pump != fd) return false;
 		this.pump = fd;
+		G_renew_powerConfigure();
 		return true;
 	}
 
