@@ -21,6 +21,7 @@ import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.IBlockAccess;
 import net.minecraft.src.Material;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
@@ -47,5 +48,10 @@ public class BlockInfMJSrc extends BlockContainer {
 		if (!world.isRemote) return true;
 		ep.openGui(QuarryPlus.instance, QuarryPlus.guiIdInfMJSrc, world, x, y, z);
 		return true;
+	}
+
+	@Override
+	public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
+		return side != -1;
 	}
 }

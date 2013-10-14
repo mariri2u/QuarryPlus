@@ -24,7 +24,6 @@ import net.minecraft.src.StatCollector;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.common.Side;
 
-
 @SideOnly(Side.CLIENT)
 public class GuiYesNo extends GuiScreen {
 	private GuiScreen parentScreen;

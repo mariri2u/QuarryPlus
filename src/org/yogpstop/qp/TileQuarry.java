@@ -105,8 +105,8 @@ public class TileQuarry extends TileBasic {
 			return true;
 		case NOTNEEDBREAK:
 			if (this.targetY < this.box.yMin) {
-				PowerManager.configureF(this.pp, this.efficiency, this.unbreaking);
 				this.now = MAKEFRAME;
+				G_renew_powerConfigure();
 				this.targetX = this.box.xMin;
 				this.targetY = this.box.yMax;
 				this.targetZ = this.box.zMin;
@@ -116,6 +116,7 @@ public class TileQuarry extends TileBasic {
 				return S_checkTarget();
 			}
 			if (bid == 0 || bid == Block.bedrock.blockID) return false;
+			if (this.pump == ForgeDirection.UNKNOWN && this.worldObj.getBlockMaterial(this.targetX, this.targetY, this.targetZ).isLiquid()) return false;
 			if (bid == frameBlock.blockID && this.worldObj.getBlockMetadata(this.targetX, this.targetY, this.targetZ) == 0) {
 				byte flag = 0;
 				if (this.targetX == this.box.xMin || this.targetX == this.box.xMax) flag++;
@@ -126,8 +127,8 @@ public class TileQuarry extends TileBasic {
 			return true;
 		case MAKEFRAME:
 			if (this.targetY < this.box.yMin) {
-				PowerManager.configureB(this.pp, this.efficiency, this.unbreaking);
 				this.now = MOVEHEAD;
+				G_renew_powerConfigure();
 				this.targetX = this.box.xMin + 1;
 				this.targetY = this.box.yMin;
 				this.targetZ = this.box.zMin + 1;
@@ -143,8 +144,8 @@ public class TileQuarry extends TileBasic {
 			if (bid == Block.bedrock.blockID) return false;
 			if (this.worldObj.getBlockMaterial(this.targetX, this.targetY, this.targetZ).isSolid()
 					&& (bid != frameBlock.blockID || this.worldObj.getBlockMetadata(this.targetX, this.targetY, this.targetZ) != 0)) {
-				PowerManager.configureB(this.pp, this.efficiency, this.unbreaking);
 				this.now = NOTNEEDBREAK;
+				G_renew_powerConfigure();
 				this.targetX = this.box.xMin;
 				this.targetZ = this.box.zMin;
 				this.targetY = this.box.yMax;
@@ -200,44 +201,43 @@ public class TileQuarry extends TileBasic {
 		} else {
 			if (this.addX) this.targetX++;
 			else this.targetX--;
-			if (this.targetX < this.box.xMin + (this.now == NOTNEEDBREAK ? 0 : 1) || this.box.xMax - (this.now == NOTNEEDBREAK ? 0 : 1) < this.targetX) {
+			int out = this.now == NOTNEEDBREAK ? 0 : 1;
+			if (this.targetX < this.box.xMin + out || this.box.xMax - out < this.targetX) {
 				this.addX = !this.addX;
-				this.targetX = Math.max(this.box.xMin + (this.now == NOTNEEDBREAK ? 0 : 1),
-						Math.min(this.targetX, this.box.xMax - (this.now == NOTNEEDBREAK ? 0 : 1)));
+				this.targetX = Math.max(this.box.xMin + out, Math.min(this.targetX, this.box.xMax - out));
 				if (this.addZ) this.targetZ++;
 				else this.targetZ--;
-				if (this.targetZ < this.box.zMin + (this.now == NOTNEEDBREAK ? 0 : 1) || this.box.zMax - (this.now == NOTNEEDBREAK ? 0 : 1) < this.targetZ) {
+				if (this.targetZ < this.box.zMin + out || this.box.zMax - out < this.targetZ) {
 					this.addZ = !this.addZ;
-					this.targetZ = Math.max(this.box.zMin + (this.now == NOTNEEDBREAK ? 0 : 1),
-							Math.min(this.targetZ, this.box.zMax - (this.now == NOTNEEDBREAK ? 0 : 1)));
+					this.targetZ = Math.max(this.box.zMin + out, Math.min(this.targetZ, this.box.zMax - out));
 					if (this.digged) this.digged = false;
 					else {
 						this.targetY--;
-						double aa = S_getDistance(this.box.xMin + 1, this.targetY, this.box.zMin + (this.now == NOTNEEDBREAK ? 0 : 1));
-						double ad = S_getDistance(this.box.xMin + 1, this.targetY, this.box.zMax - (this.now == NOTNEEDBREAK ? 0 : 1));
-						double da = S_getDistance(this.box.xMax - 1, this.targetY, this.box.zMin + (this.now == NOTNEEDBREAK ? 0 : 1));
-						double dd = S_getDistance(this.box.xMax - 1, this.targetY, this.box.zMax - (this.now == NOTNEEDBREAK ? 0 : 1));
+						double aa = S_getDistance(this.box.xMin + 1, this.targetY, this.box.zMin + out);
+						double ad = S_getDistance(this.box.xMin + 1, this.targetY, this.box.zMax - out);
+						double da = S_getDistance(this.box.xMax - 1, this.targetY, this.box.zMin + out);
+						double dd = S_getDistance(this.box.xMax - 1, this.targetY, this.box.zMax - out);
 						double res = Math.min(aa, Math.min(ad, Math.min(da, dd)));
 						if (res == aa) {
 							this.addX = true;
 							this.addZ = true;
-							this.targetX = this.box.xMin + (this.now == NOTNEEDBREAK ? 0 : 1);
-							this.targetZ = this.box.zMin + (this.now == NOTNEEDBREAK ? 0 : 1);
+							this.targetX = this.box.xMin + out;
+							this.targetZ = this.box.zMin + out;
 						} else if (res == ad) {
 							this.addX = true;
 							this.addZ = false;
-							this.targetX = this.box.xMin + (this.now == NOTNEEDBREAK ? 0 : 1);
-							this.targetZ = this.box.zMax - (this.now == NOTNEEDBREAK ? 0 : 1);
+							this.targetX = this.box.xMin + out;
+							this.targetZ = this.box.zMax - out;
 						} else if (res == da) {
 							this.addX = false;
 							this.addZ = true;
-							this.targetX = this.box.xMax - (this.now == NOTNEEDBREAK ? 0 : 1);
-							this.targetZ = this.box.zMin + (this.now == NOTNEEDBREAK ? 0 : 1);
+							this.targetX = this.box.xMax - out;
+							this.targetZ = this.box.zMin + out;
 						} else if (res == dd) {
 							this.addX = false;
 							this.addZ = false;
-							this.targetX = this.box.xMax - (this.now == NOTNEEDBREAK ? 0 : 1);
-							this.targetZ = this.box.zMax - (this.now == NOTNEEDBREAK ? 0 : 1);
+							this.targetX = this.box.xMax - out;
+							this.targetZ = this.box.zMax - out;
 						}
 					}
 				}
@@ -404,8 +404,8 @@ public class TileQuarry extends TileBasic {
 
 	@Override
 	protected void G_destroy() {
-		PowerManager.configure0(this.pp);
 		this.now = NONE;
+		G_renew_powerConfigure();
 		if (this.heads != null) {
 			this.heads.setDead();
 			this.heads = null;
@@ -420,12 +420,13 @@ public class TileQuarry extends TileBasic {
 
 	@Override
 	protected void G_reinit() {
-		PowerManager.configureB(this.pp, this.efficiency, this.unbreaking);
 		this.now = NOTNEEDBREAK;
+		G_renew_powerConfigure();
 		G_initEntities();
 		if (!this.worldObj.isRemote) {
 			S_setFirstPos();
-			PacketDispatcher.sendPacketToAllPlayers(PacketHandler.getPacketFromNBT(this));
+			PacketDispatcher.sendPacketToAllAround(this.xCoord, this.yCoord, this.zCoord, 256, this.worldObj.provider.dimensionId,
+					PacketHandler.getPacketFromNBT(this));
 			sendNowPacket(this, this.now);
 		}
 	}
@@ -488,9 +489,7 @@ public class TileQuarry extends TileBasic {
 		this.headPosY = nbttc.getDouble("headPosY");
 		this.headPosZ = nbttc.getDouble("headPosZ");
 		this.initialized = false;
-		if (this.now == NONE) PowerManager.configure0(this.pp);
-		else if (this.now == MAKEFRAME) PowerManager.configureF(this.pp, this.efficiency, this.unbreaking);
-		else PowerManager.configureB(this.pp, this.efficiency, this.unbreaking);
+		G_renew_powerConfigure();
 	}
 
 	@Override
@@ -528,9 +527,7 @@ public class TileQuarry extends TileBasic {
 		switch (pattern) {
 		case packetNow:
 			this.now = data.readByte();
-			if (this.now == NONE) PowerManager.configure0(this.pp);
-			else if (this.now == MAKEFRAME) PowerManager.configureF(this.pp, this.efficiency, this.unbreaking);
-			else PowerManager.configureB(this.pp, this.efficiency, this.unbreaking);
+			G_renew_powerConfigure();
 			this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 			G_initEntities();
 			break;
@@ -571,5 +568,16 @@ public class TileQuarry extends TileBasic {
 	@Override
 	public boolean isActive() {
 		return G_getNow() != NONE;
+	}
+
+	@Override
+	protected void G_renew_powerConfigure() {
+		TileEntity te = this.worldObj.getBlockTileEntity(this.xCoord + this.pump.offsetX, this.yCoord + this.pump.offsetY, this.zCoord + this.pump.offsetZ);
+		byte pmp = 0;
+		if (te instanceof TilePump) pmp = ((TilePump) te).unbreaking;
+		else this.pump = ForgeDirection.UNKNOWN;
+		if (this.now == NONE) PowerManager.configure0(this.pp);
+		else if (this.now == MAKEFRAME) PowerManager.configureF(this.pp, this.efficiency, this.unbreaking, pmp);
+		else PowerManager.configureB(this.pp, this.efficiency, this.unbreaking, pmp);
 	}
 }

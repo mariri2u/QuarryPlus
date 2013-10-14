@@ -28,7 +28,6 @@ import org.yogpstop.qp.TileBasic;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.common.Side;
 
-
 @SideOnly(Side.CLIENT)
 public class GuiSelectBlock extends GuiScreen {
 	private GuiSlotBlockList blocks;
