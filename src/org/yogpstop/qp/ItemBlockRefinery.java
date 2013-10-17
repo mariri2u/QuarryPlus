@@ -17,19 +17,22 @@
 
 package org.yogpstop.qp;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.Packet;
-import net.minecraft.src.TileEntity;
+import net.minecraft.src.ItemBlock;
+import net.minecraft.src.ItemStack;
 
-import com.google.common.io.ByteArrayDataInput;
+public class ItemBlockRefinery extends ItemBlock implements IEnchantableItem {
 
-public abstract class APacketTile extends TileEntity {
-	abstract void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
-
-	abstract void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
+	public ItemBlockRefinery(int par1) {
+		super(par1);
+	}
 
 	@Override
-	public final Packet getDescriptionPacket() {
-		return PacketHandler.getPacketFromNBT(this);
+	public boolean canMove(ItemStack is, int id, int meta) {
+		return id == 32 || id == 34 || id == 35 || id == -1;
+	}
+
+	@Override
+	public boolean getIsRepairable(ItemStack itemstack1, ItemStack itemstack2) {
+		return false;
 	}
 }

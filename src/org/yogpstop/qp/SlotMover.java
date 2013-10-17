@@ -39,8 +39,7 @@ public class SlotMover extends Slot {
 			if (is.itemID == Item.pickaxeDiamond.shiftedIndex) { return true; }
 			return false;
 		case 1:
-			if (is.itemID == QuarryPlus.blockQuarry.blockID || is.itemID == QuarryPlus.blockMiningWell.blockID || is.itemID == QuarryPlus.blockPump.blockID
-					|| is.itemID == QuarryPlus.blockRefinery.blockID || (is.itemID == QuarryPlus.itemTool.shiftedIndex && is.getItemDamage() == 1)) return true;
+			if (is.getItem() instanceof IEnchantableItem && ((IEnchantableItem) is.getItem()).canMove(is, -1, is.getItemDamage())) return true;
 		}
 		return false;
 	}

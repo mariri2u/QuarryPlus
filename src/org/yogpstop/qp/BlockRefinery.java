@@ -32,7 +32,6 @@ import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
 import net.minecraft.src.Packet3Chat;
-import net.minecraft.src.StatCollector;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
 import net.minecraftforge.common.ForgeDirection;
@@ -58,14 +57,14 @@ public class BlockRefinery extends BlockContainer {
 	@Override
 	public void breakBlock(World world, int x, int y, int z, int id, int meta) {
 		this.drop.clear();
-		TileRefinery tp = (TileRefinery) world.getBlockTileEntity(x, y, z);
-		if (world.isRemote || tp == null) return;
+		TileRefinery tile = (TileRefinery) world.getBlockTileEntity(x, y, z);
+		if (world.isRemote || tile == null) return;
 		int count = quantityDropped(meta, 0, world.rand);
 		int id1 = idDropped(meta, world.rand, 0);
 		if (id1 > 0) {
 			for (int i = 0; i < count; i++) {
 				ItemStack is = new ItemStack(id1, 1, damageDropped(meta));
-				tp.S_setEnchantment(is);
+				EnchantmentHelper.enchantmentToIS(tile, is);
 				this.drop.add(is);
 			}
 		}
@@ -80,7 +79,7 @@ public class BlockRefinery extends BlockContainer {
 	@Override
 	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el) {
 		super.onBlockPlacedBy(w, x, y, z, el);
-		((TileRefinery) w.getBlockTileEntity(x, y, z)).G_init(el.getHeldItem().getEnchantmentTagList());
+		EnchantmentHelper.init((IEnchantableTile) w.getBlockTileEntity(x, y, z), el.getHeldItem().getEnchantmentTagList());
 		ForgeDirection orientation = Utils.get2dOrientation(new Position(el.posX, el.posY, el.posZ), new Position(x, y, z));
 		w.setBlockMetadataWithNotify(x, y, z, orientation.getOpposite().ordinal());
 	}
@@ -111,8 +110,7 @@ public class BlockRefinery extends BlockContainer {
 		} else if (equipped instanceof ItemTool) {
 			if (ep.getCurrentEquippedItem().getItemDamage() == 0) {
 				if (world.isRemote) return true;
-				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(StatCollector.translateToLocal("chat.plusenchant")), (Player) ep);
-				for (String s : ((TileRefinery) world.getBlockTileEntity(x, y, z)).C_getEnchantments())
+				for (String s : EnchantmentHelper.getEnchantmentsChat((IEnchantableTile) world.getBlockTileEntity(x, y, z)))
 					PacketDispatcher.sendPacketToPlayer(new Packet3Chat(s), (Player) ep);
 				return true;
 			}

@@ -17,8 +17,10 @@
 
 package org.yogpstop.qp;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -30,11 +32,8 @@ import buildcraft.api.power.IPowerProvider;
 import buildcraft.api.power.IPowerReceptor;
 import buildcraft.core.Box;
 import net.minecraft.src.Block;
-import net.minecraft.src.BlockFluid;
-import net.minecraft.src.Enchantment;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ExtendedBlockStorage;
-import net.minecraft.src.ItemStack;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.NBTTagString;
@@ -50,7 +49,7 @@ import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.liquids.LiquidTank;
 
-public class TilePump extends APacketTile implements ITankContainer, IPowerReceptor {
+public class TilePump extends APacketTile implements ITankContainer, IPowerReceptor, IEnchantableTile {
 	private ForgeDirection connectTo = ForgeDirection.UNKNOWN;
 	private boolean initialized = false;
 
@@ -80,14 +79,8 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		this.fortune = nbttc.getByte("fortune");
 		this.unbreaking = nbttc.getByte("unbreaking");
 		this.connectTo = ForgeDirection.values()[nbttc.getByte("connectTo")];
-		if (nbttc.getTag("mapping0") instanceof NBTTagString) {
-			this.mapping[0] = nbttc.getString("mapping0");
-			this.mapping[1] = nbttc.getString("mapping1");
-			this.mapping[2] = nbttc.getString("mapping2");
-			this.mapping[3] = nbttc.getString("mapping3");
-			this.mapping[4] = nbttc.getString("mapping4");
-			this.mapping[5] = nbttc.getString("mapping5");
-		}
+		if (nbttc.getTag("mapping0") instanceof NBTTagList) for (int i = 0; i < this.mapping.length; i++)
+			readStringCollection(nbttc.getTagList(String.format("mapping%d", i)), this.mapping[i]);
 		this.range = nbttc.getByte("range");
 		this.quarryRange = nbttc.getBoolean("quarryRange");
 		this.prev = (byte) (this.connectTo.ordinal() | (G_working() ? 0x80 : 0));
@@ -100,6 +93,12 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		}
 	}
 
+	private static void readStringCollection(NBTTagList nbttl, Collection<String> target) {
+		target.clear();
+		for (int i = 0; i < nbttl.tagCount(); i++)
+			target.add(((NBTTagString) nbttl.tagAt(i)).data);
+	}
+
 	@Override
 	public void writeToNBT(NBTTagCompound nbttc) {
 		super.writeToNBT(nbttc);
@@ -107,12 +106,8 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		nbttc.setByte("fortune", this.fortune);
 		nbttc.setByte("unbreaking", this.unbreaking);
 		nbttc.setByte("connectTo", (byte) this.connectTo.ordinal());
-		nbttc.setString("mapping0", this.mapping[0] == null ? "null" : this.mapping[0]);
-		nbttc.setString("mapping1", this.mapping[1] == null ? "null" : this.mapping[1]);
-		nbttc.setString("mapping2", this.mapping[2] == null ? "null" : this.mapping[2]);
-		nbttc.setString("mapping3", this.mapping[3] == null ? "null" : this.mapping[3]);
-		nbttc.setString("mapping4", this.mapping[4] == null ? "null" : this.mapping[4]);
-		nbttc.setString("mapping5", this.mapping[5] == null ? "null" : this.mapping[5]);
+		for (int i = 0; i < this.mapping.length; i++)
+			nbttc.setTag(String.format("mapping%d", i), writeStringCollection(this.mapping[i]));
 		nbttc.setByte("range", this.range);
 		nbttc.setBoolean("quarryRange", this.quarryRange);
 		if (this.silktouch) {
@@ -123,6 +118,13 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		}
 	}
 
+	private static NBTTagList writeStringCollection(Collection<String> target) {
+		NBTTagList nbttl = new NBTTagList();
+		for (String l : target)
+			nbttl.appendTag(new NBTTagString("", l));
+		return nbttl;
+	}
+
 	@Override
 	public void updateEntity() {
 		super.updateEntity();
@@ -130,10 +132,16 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		TileEntity te;
 		LiquidStack fs;
 		for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
-			fs = getSameLiquid(LiquidDictionary.getLiquid(this.mapping[fd.ordinal()], 0));
-			if (fs == null) continue;
 			te = this.worldObj.getBlockTileEntity(this.xCoord + fd.offsetX, this.yCoord + fd.offsetY, this.zCoord + fd.offsetZ);
-			if (te instanceof ITankContainer) fs.amount -= ((ITankContainer) te).fill(fd.getOpposite(), fs, true);
+			if (te instanceof ITankContainer) {
+				for (String s : this.mapping[fd.ordinal()]) {
+					pZ = indexOf(LiquidDictionary.getLiquid(s, 0));
+					if (pZ == -1) continue;
+					fs = this.liquids.get(pZ);
+					fs.amount -= ((ITankContainer) te).fill(fd.getOpposite(), fs, true);
+					break;
+				}
+			}
 		}
 		if (this.worldObj.isRemote || this.initialized) return;
 		pX = this.xCoord + this.connectTo.offsetX;
@@ -150,32 +158,8 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		}
 	}
 
-	void S_setEnchantment(ItemStack is) {
-		if (this.silktouch) is.addEnchantment(Enchantment.enchantmentsList[33], 1);
-		if (this.unbreaking > 0) is.addEnchantment(Enchantment.enchantmentsList[34], this.unbreaking);
-		if (this.fortune > 0) is.addEnchantment(Enchantment.enchantmentsList[35], this.fortune);
-	}
-
-	public List<String> C_getEnchantments() {
-		ArrayList<String> als = new ArrayList<String>();
-		if (this.silktouch) als.add(Enchantment.enchantmentsList[33].getTranslatedName(1));
-		if (this.unbreaking > 0) als.add(Enchantment.enchantmentsList[34].getTranslatedName(this.unbreaking));
-		if (this.fortune > 0) als.add(Enchantment.enchantmentsList[35].getTranslatedName(this.fortune));
-		return als;
-	}
-
-	void G_init(NBTTagList nbttl) {
-		if (nbttl != null) for (int i = 0; i < nbttl.tagCount(); i++) {
-			short id = ((NBTTagCompound) nbttl.tagAt(i)).getShort("id");
-			short lvl = ((NBTTagCompound) nbttl.tagAt(i)).getShort("lvl");
-			if (id == 33) this.silktouch = true;
-			if (id == 34) this.unbreaking = (byte) lvl;
-			if (id == 35) this.fortune = (byte) lvl;
-		}
-		G_reinit();
-	}
-
-	void G_reinit() {
+	@Override
+	public void G_reinit() {
 		if (this.worldObj.isRemote) return;
 		TileEntity te;
 		for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
@@ -200,18 +184,110 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 	}
 
 	@Override
-	void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {}
+	void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {
+		byte target;
+		int pos;
+		String buf;
+		switch (pattern) {
+		case PacketHandler.CtS_ADD_MAPPING:// BLjava.lang.String;
+			target = data.readByte();
+			this.mapping[target].add(data.readUTF());
+			S_OpenGUI(target, ep);
+			break;
+		case PacketHandler.CtS_REMOVE_MAPPING:// BLjava.lang.String;
+			target = data.readByte();
+			this.mapping[target].remove(data.readUTF());
+			S_OpenGUI(target, ep);
+			break;
+		case PacketHandler.CtS_UP_MAPPING:// BLjava.lang.String;
+			target = data.readByte();
+			pos = this.mapping[target].indexOf(data.readUTF());
+			if (pos > 0) {
+				buf = this.mapping[target].get(pos);
+				this.mapping[target].remove(pos);
+				this.mapping[target].add(pos - 1, buf);
+			}
+			S_OpenGUI(target, ep);
+			break;
+		case PacketHandler.CtS_DOWN_MAPPING:// BLjava.lang.String;
+			target = data.readByte();
+			pos = this.mapping[target].indexOf(data.readUTF());
+			if (pos >= 0 && pos + 1 < this.mapping[target].size()) {
+				buf = this.mapping[target].get(pos);
+				this.mapping[target].remove(pos);
+				this.mapping[target].add(pos + 1, buf);
+			}
+			S_OpenGUI(target, ep);
+			break;
+		case PacketHandler.CtS_TOP_MAPPING:// BLjava.lang.String;
+			target = data.readByte();
+			pos = this.mapping[target].indexOf(data.readUTF());
+			if (pos >= 0) {
+				buf = this.mapping[target].get(pos);
+				this.mapping[target].remove(pos);
+				this.mapping[target].addFirst(buf);
+			}
+			S_OpenGUI(target, ep);
+			break;
+		case PacketHandler.CtS_BOTTOM_MAPPING:// BLjava.lang.String;
+			target = data.readByte();
+			pos = this.mapping[target].indexOf(data.readUTF());
+			if (pos >= 0) {
+				buf = this.mapping[target].get(pos);
+				this.mapping[target].remove(pos);
+				this.mapping[target].addLast(buf);
+			}
+			S_OpenGUI(target, ep);
+			break;
+		case PacketHandler.CtS_RENEW_DIRECTION:
+			S_OpenGUI(data.readByte(), ep);
+			break;
+		case PacketHandler.CtS_COPY_MAPPING:
+			byte from = data.readByte();
+			target = data.readByte();
+			this.mapping[target].clear();
+			this.mapping[target].addAll(this.mapping[from]);
+			S_OpenGUI(target, ep);
+			break;
+		}
+	}
 
 	@Override
-	void C_recievePacket(byte pattern, ByteArrayDataInput data) {
+	void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {
 		switch (pattern) {
-		case PacketHandler.packetNow:
+		case PacketHandler.StC_NOW:// B
 			byte flag = data.readByte();
 			if ((flag & 0x80) != 0) this.cy = this.currentHeight = -1;
 			else this.currentHeight = Integer.MIN_VALUE;
 			this.connectTo = ForgeDirection.getOrientation(flag & 0x7F);
 			this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 			break;
+		case PacketHandler.StC_OPENGUI_MAPPING:// BI[Ljava.lang.String;
+			byte target = data.readByte();
+			int len = data.readInt();
+			this.mapping[target].clear();
+			for (int i = 0; i < len; i++)
+				this.mapping[target].add(data.readUTF());
+			ep.openGui(QuarryPlus.instance, QuarryPlus.guiIdPump + target, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+			break;
+		}
+	}
+
+	void S_OpenGUI(int d, EntityPlayer ep) {// BI[Ljava.lang.String;
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataOutputStream dos = new DataOutputStream(bos);
+			dos.writeInt(this.xCoord);
+			dos.writeInt(this.yCoord);
+			dos.writeInt(this.zCoord);
+			dos.writeByte(PacketHandler.StC_OPENGUI_MAPPING);
+			dos.writeByte(d);
+			dos.writeInt(this.mapping[d].size());
+			for (String s : this.mapping[d])
+				dos.writeUTF(s);
+			PacketDispatcher.sendPacketToPlayer(PacketHandler.composeTilePacket(bos), (Player) ep);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -382,8 +458,8 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 								fs = new LiquidStack(Block.lavaStill, LiquidContainerRegistry.BUCKET_VOLUME);
 							}
 							if (fs != null) {
-								LiquidStack fsn = getSameLiquid(fs);
-								if (fsn != null) fsn.amount += fs.amount;
+								int index = indexOf(fs);
+								if (index != -1) this.liquids.get(index).amount += fs.amount;
 								else this.liquids.add(fs);
 								fs = null;
 							} else this.worldObj.setBlock(bx + this.xOffset, this.currentHeight, bz + this.zOffset, 0);
@@ -400,28 +476,35 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private final LinkedList<LiquidStack> liquids = new LinkedList<LiquidStack>();
+	public final LinkedList<String>[] mapping = new LinkedList[ForgeDirection.VALID_DIRECTIONS.length];
 
-	private final ArrayList<LiquidStack> liquids = new ArrayList<LiquidStack>();
-	private final String[] mapping = new String[ForgeDirection.VALID_DIRECTIONS.length];
+	{
+		for (int i = 0; i < this.mapping.length; i++)
+			this.mapping[i] = new LinkedList<String>();
+	}
 
 	public String[] C_getNames() {
-		String[] ret = new String[this.mapping.length];
-		LiquidStack ls;
-		for (int i = 0; i < ret.length; i++) {
-			ls = getSameLiquid(getLiquid(this.mapping[i]));
-			ret[i] = StatCollector.translateToLocalFormatted("chat.pumpitem", fdToString(ForgeDirection.getOrientation(i)), this.mapping[i], ls == null ? 0
-					: ls.amount);
+		String[] ret = new String[this.liquids.size() + 1];
+		if (this.liquids.size() > 0) {
+			ret[0] = StatCollector.translateToLocal("chat.pumpcontain");
+			for (int i = 0; i < this.liquids.size(); i++) {
+				ret[i + 1] = new StringBuilder().append("    ").append(findLiquidName(this.liquids.get(i))).append(": ").append(this.liquids.get(i).amount)
+						.append("mB").toString();
+			}
+		} else {
+			ret[0] = StatCollector.translateToLocal("chat.pumpcontainno");
 		}
 		return ret;
 	}
 
-	private LiquidStack getSameLiquid(LiquidStack key) {
-		for (LiquidStack fs : this.liquids)
-			if (fs.isLiquidEqual(key)) return fs;
-		return null;
+	private int indexOf(LiquidStack key) {
+		for (int i = 0; i < this.liquids.size(); i++)
+			if (this.liquids.get(i).isLiquidEqual(key)) return i;
+		return -1;
 	}
 
-	static String fdToString(ForgeDirection fd) {
+	public static String fdToString(ForgeDirection fd) {
 		switch (fd) {
 		case UP:
 			return StatCollector.translateToLocal("up");
@@ -458,16 +541,6 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		return null;
 	}
 
-	String incl(int side) {
-		if (this.liquids.isEmpty()) return this.mapping[side] = null;
-		boolean match = false;
-		for (LiquidStack fs : this.liquids) {
-			if (fs.isLiquidEqual(getLiquid(this.mapping[side]))) match = true;
-			else if (match) return this.mapping[side] = findLiquidName(fs);
-		}
-		return this.mapping[side] = findLiquidName(this.liquids.get(0));
-	}
-
 	@Override
 	public int fill(ForgeDirection from, LiquidStack resource, boolean doFill) {
 		return 0;
@@ -475,7 +548,21 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 
 	@Override
 	public LiquidStack drain(int id, int maxDrain, boolean doDrain) {
-		return null;
+		return null;// TODO
+	}
+
+	public LiquidStack drain(ForgeDirection fd, LiquidStack resource, boolean doDrain) {
+		if (resource == null) return null;
+		int index = indexOf(resource);
+		if (index == -1) return null;
+		LiquidStack fs = this.liquids.get(index);
+		if (fs == null) return null;
+		LiquidStack ret = fs.copy();
+		ret.amount = Math.min(fs.amount, resource.amount);
+		if (doDrain) fs.amount -= ret.amount;
+		if (fs.amount <= 0) this.liquids.remove(fs);
+		if (ret.amount <= 0) return null;
+		return ret;
 	}
 
 	@Override
@@ -483,41 +570,64 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		return 0;
 	}
 
-	private LiquidStack getFluidStack(ForgeDirection fd) {
-		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return getFluidStack(ForgeDirection.UP);
-		return getSameLiquid(getLiquid(this.mapping[fd.ordinal()]));
-	}
-
 	@Override
 	public ILiquidTank getTank(ForgeDirection fd, LiquidStack type) {
 		ILiquidTank[] ilda = getTanks(fd);
 		if (ilda == null) return null;
-		if (type == null || type.isLiquidEqual(ilda[0].getLiquid())) return ilda[0];
+		if (type == null) return ilda[0];
+		for (ILiquidTank ild : ilda)
+			if (ild.getLiquid().isLiquidEqual(type)) return ild;
 		return null;
 	}
 
 	@Override
 	public ILiquidTank[] getTanks(ForgeDirection fd) {
-		LiquidStack fs = getFluidStack(fd);
-		if (fs == null) return null;
-		return new LiquidTank[] { new LiquidTank(fs, Integer.MAX_VALUE) };
+		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return getTanks(ForgeDirection.UP);
+		LinkedList<ILiquidTank> ret = new LinkedList<ILiquidTank>();
+		if (this.mapping[fd.ordinal()].size() <= 0) {
+			if (this.liquids.size() <= 0) {
+				for (LiquidStack fs : LiquidDictionary.getLiquids().values())
+					ret.add(new LiquidTank(fs, Integer.MAX_VALUE));
+			} else {
+				for (LiquidStack fs : this.liquids)
+					ret.add(new LiquidTank(fs, Integer.MAX_VALUE));
+			}
+		} else {
+			int index;
+			LiquidStack fs;
+			for (String s : this.mapping[fd.ordinal()]) {
+				fs = LiquidDictionary.getLiquid(s, 0);
+				if (fs == null) continue;
+				index = indexOf(fs);
+				if (index != -1) ret.add(new LiquidTank(this.liquids.get(index), Integer.MAX_VALUE));
+				else ret.add(new LiquidTank(fs, Integer.MAX_VALUE));
+			}
+		}
+		return ret.toArray(new ILiquidTank[ret.size()]);
 	}
 
 	@Override
 	public LiquidStack drain(ForgeDirection fd, int maxDrain, boolean doDrain) {
-		LiquidStack fs = getFluidStack(fd);
-		if (fs == null) return null;
-		LiquidStack ret = fs.copy();
-		ret.amount = Math.min(fs.amount, maxDrain);
-		if (doDrain) fs.amount -= ret.amount;
-		if (fs.amount <= 0) this.liquids.remove(fs);
-		if (ret.amount <= 0) return null;
-		return ret;
+		if (fd.ordinal() < 0 || fd.ordinal() >= this.mapping.length) return drain(ForgeDirection.UP, maxDrain, doDrain);
+		if (this.mapping[fd.ordinal()].size() <= 0) {
+			if (this.liquids.size() <= 0) return null;
+			return drain(fd, this.liquids.getFirst(), doDrain);
+		}
+		int index;
+		LiquidStack fs;
+		for (String s : this.mapping[fd.ordinal()]) {
+			fs = LiquidDictionary.getLiquid(s, maxDrain);
+			if (fs == null) continue;
+			index = indexOf(fs);
+			if (index == -1) continue;
+			return drain(fd, this.liquids.get(index), doDrain);
+		}
+		return null;
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private static final boolean isLiquid(Block b) {
-		return b == null ? false : (b instanceof ILiquid || b instanceof BlockFluid || b.blockMaterial.isLiquid());
+		return b == null ? false : (b instanceof ILiquid || b == Block.waterStill || b == Block.waterMoving || b == Block.lavaStill || b == Block.lavaMoving);
 	}
 
 	@Override
@@ -537,5 +647,32 @@ public class TilePump extends APacketTile implements ITankContainer, IPowerRecep
 		if (getPowerProvider() == null) return 0;
 		return (int) Math.ceil(Math.min(getPowerProvider().getMaxEnergyReceived(), getPowerProvider().getMaxEnergyStored()
 				- getPowerProvider().getEnergyStored()));
+	}
+
+	@Override
+	public byte getEfficiency() {
+		return 0;
+	}
+
+	@Override
+	public byte getFortune() {
+		return this.fortune;
+	}
+
+	@Override
+	public byte getUnbreaking() {
+		return this.unbreaking;
+	}
+
+	@Override
+	public boolean getSilktouch() {
+		return this.silktouch;
+	}
+
+	@Override
+	public void set(byte pefficiency, byte pfortune, byte punbreaking, boolean psilktouch) {
+		this.fortune = pfortune;
+		this.unbreaking = punbreaking;
+		this.silktouch = psilktouch;
 	}
 }

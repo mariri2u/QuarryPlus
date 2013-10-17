@@ -29,7 +29,7 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.World;
 
-public class ItemTool extends Item {
+public class ItemTool extends Item implements IEnchantableItem {
 
 	public ItemTool(int par1) {
 		super(par1);
@@ -46,17 +46,25 @@ public class ItemTool extends Item {
 	}
 
 	@Override
+	public boolean getIsRepairable(ItemStack itemstack1, ItemStack itemstack2) {
+		return false;
+	}
+
+	@Override
 	public boolean onItemUse(ItemStack is, EntityPlayer ep, World w, int x, int y, int z, int side, float par8, float par9, float par10) {
-		boolean s = false, f = false;
-		NBTTagList nbttl = is.getEnchantmentTagList();
-		if (nbttl != null) for (int i = 0; i < nbttl.tagCount(); i++) {
-			short id = ((NBTTagCompound) nbttl.tagAt(i)).getShort("id");
-			if (id == 33) s = true;
-			if (id == 35) f = true;
-		}
-		if (w.getBlockTileEntity(x, y, z) instanceof TileBasic && s != f) {
-			if (w.isRemote) ep.openGui(QuarryPlus.instance, f ? QuarryPlus.guiIdFList : QuarryPlus.guiIdSList, w, x, y, z);
-			return true;
+		if (is.getItemDamage() == 1) {
+			boolean s = false, f = false;
+			NBTTagList nbttl = is.getEnchantmentTagList();
+			if (nbttl != null) for (int i = 0; i < nbttl.tagCount(); i++) {
+				short id = ((NBTTagCompound) nbttl.tagAt(i)).getShort("id");
+				if (id == 33) s = true;
+				if (id == 35) f = true;
+			}
+			if (w.getBlockTileEntity(x, y, z) instanceof TileBasic && s != f) {
+				if (!w.isRemote) ((TileBasic) w.getBlockTileEntity(x, y, z)).sendOpenGUI(ep, f ? PacketHandler.StC_OPENGUI_FORTUNE
+						: PacketHandler.StC_OPENGUI_SILKTOUCH);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -83,5 +91,12 @@ public class ItemTool extends Item {
 	@Override
 	public String getTextureFile() {
 		return "/mods/yogpstop_qp/textures/textures.png";
+	}
+
+	@Override
+	public boolean canMove(ItemStack is, int id, int meta) {
+		if (meta != 1) return false;
+		if (is.getEnchantmentTagList() != null) return false;
+		return id == 33 || id == 35 || id == -1;
 	}
 }

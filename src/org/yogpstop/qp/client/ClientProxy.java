@@ -17,6 +17,8 @@
 
 package org.yogpstop.qp.client;
 
+import net.minecraftforge.client.MinecraftForgeClient;
+
 import org.yogpstop.qp.CommonProxy;
 import org.yogpstop.qp.EntityMechanicalArm;
 import org.yogpstop.qp.TileRefinery;
@@ -34,6 +36,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMechanicalArm.class, new RenderVoid());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileRefinery.class, RenderRefinery.INSTANCE);
 		RenderingRegistry.registerBlockHandler(RenderRefinery.INSTANCE);
+		MinecraftForgeClient.preloadTexture("/mods/yogpstop_qp/textures/textures.png");
 	}
 
 }

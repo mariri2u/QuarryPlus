@@ -30,7 +30,10 @@ import net.minecraft.src.ItemStack;
 import net.minecraft.src.StatCollector;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.ForgeChunkManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
+import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.world.WorldEvent;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod;
@@ -42,7 +45,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
 @Mod(modid = "QuarryPlus", name = "QuarryPlus", version = "@VERSION@", dependencies = "required-after:BuildCraft|Builders;required-after:BuildCraft|Core;required-after:BuildCraft|Energy;required-after:BuildCraft|Factory;required-after:BuildCraft|Silicon;required-after:BuildCraft|Transport")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { PacketHandler.BTN, PacketHandler.NBT, PacketHandler.OGUI, PacketHandler.Tile }, packetHandler = PacketHandler.class)
+@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { PacketHandler.BTN, PacketHandler.NBT, PacketHandler.Tile, PacketHandler.Marker }, packetHandler = PacketHandler.class)
 public class QuarryPlus {
 	@SidedProxy(clientSide = "org.yogpstop.qp.client.ClientProxy", serverSide = "org.yogpstop.qp.CommonProxy")
 	public static CommonProxy proxy;
@@ -52,7 +55,7 @@ public class QuarryPlus {
 
 	public static final int refineryRenderID = RenderingRegistry.getNextAvailableRenderId();
 
-	public static Block blockQuarry, blockMarker, blockMover, blockMiningWell, blockPump, blockInfMJSrc, blockRefinery;
+	public static Block blockQuarry, blockMarker, blockMover, blockMiningWell, blockPump, blockInfMJSrc, blockRefinery, blockPlacer, blockBreaker, blockLaser;
 	public static Item itemTool;
 
 	public static int RecipeDifficulty;
@@ -61,6 +64,16 @@ public class QuarryPlus {
 	public static final int guiIdMover = 2;
 	public static final int guiIdFList = 3;
 	public static final int guiIdSList = 4;
+	public static final int guiIdPlacer = 5;
+	public static final int guiIdPump = 6;// reserved from 6 to 11
+
+	@ForgeSubscribe
+	public void onWorldUnload(WorldEvent.Unload event) {
+		for (TileMarker.Link l : TileMarker.linkList)
+			if (l.w == event.world) l.removeConnection(false);
+		for (TileMarker.Laser l : TileMarker.laserList)
+			if (l.w == event.world) l.destructor();
+	}
 
 	@Mod.PreInit
 	public void preInit(FMLPreInitializationEvent event) {
@@ -69,9 +82,10 @@ public class QuarryPlus {
 		int iid = Integer.MIN_VALUE;
 		try {
 			cfg.load();
-			bid = new int[] { cfg.getBlock("Quarry", 4001).getInt(), cfg.getBlock("Marker", 4002).getInt(), cfg.getBlock("EnchantMover", 4003).getInt(),
-					cfg.getBlock("MiningWell", 4004).getInt(), cfg.getBlock("Pump", 4005).getInt(), cfg.getBlock("InfMJSrc", 4006).getInt(),
-					cfg.getBlock("Refinery", 4007).getInt() };
+			bid = new int[] { cfg.getBlock("Quarry", 1970).getInt(), cfg.getBlock("Marker", 1971).getInt(), cfg.getBlock("EnchantMover", 1972).getInt(),
+					cfg.getBlock("MiningWell", 1973).getInt(), cfg.getBlock("Pump", 1974).getInt(), cfg.getBlock("InfMJSrc", 1975).getInt(),
+					cfg.getBlock("Refinery", 1976).getInt(), cfg.getBlock("Placer", 1977).getInt(), cfg.getBlock("Breaker", 1978).getInt(),
+					cfg.getBlock("Laser", 1979).getInt() };
 			iid = cfg.getItem("Tools", 18463).getInt();
 			Property RD = cfg.get(Configuration.CATEGORY_GENERAL, "RecipeDifficulty", 2);
 			RD.comment = "0:AsCheatRecipe,1:EasyRecipe,2:NormalRecipe(Default),3:HardRecipe,other:NormalRecipe";
@@ -92,6 +106,9 @@ public class QuarryPlus {
 			blockPump = (new BlockPump(bid[4]));
 			blockInfMJSrc = (new BlockInfMJSrc(bid[5]));
 			blockRefinery = (new BlockRefinery(bid[6]));
+			blockPlacer = (new BlockPlacer(bid[7]));
+			blockBreaker = (new BlockBreaker(bid[8]));
+			blockLaser = (new BlockLaser(bid[9]));
 			itemTool = (new ItemTool(iid));
 		} catch (Exception e) {
 			// throw new
@@ -101,17 +118,21 @@ public class QuarryPlus {
 		LanguageRegistry.instance().loadLocalization("/lang/yogpstop/quarryplus/en_US.lang", "en_US", false);
 		LanguageRegistry.instance().loadLocalization("/lang/yogpstop/quarryplus/ja_JP.lang", "ja_JP", false);
 		ForgeChunkManager.setForcedChunkLoadingCallback(instance, new ChunkLoadingHandler());
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Mod.Init
 	public void init(FMLInitializationEvent event) {
-		GameRegistry.registerBlock(blockQuarry);
+		GameRegistry.registerBlock(blockQuarry, ItemBlockQuarry.class);
 		GameRegistry.registerBlock(blockMarker);
 		GameRegistry.registerBlock(blockMover);
-		GameRegistry.registerBlock(blockMiningWell);
-		GameRegistry.registerBlock(blockPump);
+		GameRegistry.registerBlock(blockMiningWell, ItemBlockQuarry.class);
+		GameRegistry.registerBlock(blockPump, ItemBlockPump.class);
 		GameRegistry.registerBlock(blockInfMJSrc);
-		GameRegistry.registerBlock(blockRefinery);
+		GameRegistry.registerBlock(blockRefinery, ItemBlockRefinery.class);
+		GameRegistry.registerBlock(blockPlacer);
+		GameRegistry.registerBlock(blockBreaker, ItemBlockBreaker.class);
+		GameRegistry.registerBlock(blockLaser, ItemBlockQuarry.class);
 
 		GameRegistry.registerTileEntity(TileQuarry.class, "QuarryPlus");
 		GameRegistry.registerTileEntity(TileMarker.class, "MarkerPlus");
@@ -119,6 +140,9 @@ public class QuarryPlus {
 		GameRegistry.registerTileEntity(TilePump.class, "PumpPlus");
 		GameRegistry.registerTileEntity(TileInfMJSrc.class, "InfMJSrc");
 		GameRegistry.registerTileEntity(TileRefinery.class, "RefineryPlus");
+		GameRegistry.registerTileEntity(TilePlacer.class, "PlacerPlus");
+		GameRegistry.registerTileEntity(TileBreaker.class, "BreakerPlus");
+		GameRegistry.registerTileEntity(TileLaser.class, "LaserPlus");
 
 		switch (RecipeDifficulty) {
 		case 0:
@@ -140,6 +164,12 @@ public class QuarryPlus {
 					new Object[] { "X", "Y", Character.valueOf('Y'), BuildCraftCore.wrenchItem, Character.valueOf('X'), Item.paper });
 			GameRegistry.addRecipe(new ItemStack(itemTool, 1, 2),
 					new Object[] { "X", "Y", Character.valueOf('Y'), BuildCraftCore.wrenchItem, Character.valueOf('X'), Item.bucketEmpty });
+			GameRegistry.addRecipe(new ItemStack(blockBreaker, 1), new Object[] { "X", "Y", Character.valueOf('Y'), Block.dispenser, Character.valueOf('X'),
+					Item.pickaxeSteel });
+			GameRegistry.addRecipe(new ItemStack(blockPlacer, 1), new Object[] { "X", "Y", Character.valueOf('Y'), Block.dispenser, Character.valueOf('X'),
+					Item.redstone });
+			GameRegistry.addRecipe(new ItemStack(blockLaser, 1),
+					new Object[] { "X", "Y", Character.valueOf('Y'), BuildCraftSilicon.laserBlock, Character.valueOf('X'), Item.redstone });
 			break;
 		case 1:
 			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftFactory.quarryBlock, 1),
@@ -167,6 +197,13 @@ public class QuarryPlus {
 			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftFactory.miningWellBlock, 1),
 					new ItemStack(BuildCraftSilicon.redstoneChipset, 1, 3), new ItemStack(BuildCraftTransport.yellowPipeWire, 8) }, 80000, new ItemStack(
 					blockMiningWell, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(Block.dispenser, 1), new ItemStack(Item.pickaxeDiamond, 1),
+					new ItemStack(BuildCraftEnergy.engineBlock, 1, 1) }, 40000, new ItemStack(blockBreaker, 1)));
+			AssemblyRecipe.assemblyRecipes
+					.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(Block.dispenser, 1), new ItemStack(BuildCraftBuilders.fillerBlock, 1),
+							new ItemStack(BuildCraftEnergy.engineBlock, 1, 1) }, 80000, new ItemStack(blockPlacer, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftSilicon.laserBlock, 1),
+					new ItemStack(BuildCraftTransport.pipePowerGold, 32), new ItemStack(Block.glass, 16) }, 160000, new ItemStack(blockLaser, 1)));
 			break;
 		case 3:
 			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftFactory.quarryBlock, 2),
@@ -200,6 +237,15 @@ public class QuarryPlus {
 			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftFactory.miningWellBlock, 2),
 					new ItemStack(BuildCraftSilicon.redstoneChipset, 8, 3), new ItemStack(BuildCraftTransport.yellowPipeWire, 16),
 					new ItemStack(BuildCraftSilicon.redstoneChipset, 1, 4), new ItemStack(Block.chest, 16) }, 500000, new ItemStack(blockMiningWell, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(Block.dispenser, 2), new ItemStack(Block.blockDiamond, 2),
+					new ItemStack(Item.redstone, 64), new ItemStack(blockQuarry, 1), new ItemStack(blockMiningWell, 1),
+					new ItemStack(BuildCraftEnergy.engineBlock, 16, 2) }, 640000, new ItemStack(blockBreaker, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(Block.dispenser, 2), new ItemStack(Block.blockDiamond, 2),
+					new ItemStack(Item.redstone, 64), new ItemStack(BuildCraftBuilders.fillerBlock, 2), new ItemStack(Block.blockGold, 2),
+					new ItemStack(BuildCraftEnergy.engineBlock, 16, 2) }, 1280000, new ItemStack(blockPlacer, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftSilicon.laserBlock, 16),
+					new ItemStack(Block.glass, 64), new ItemStack(BuildCraftTransport.pipePowerGold, 64), new ItemStack(Item.lightStoneDust, 64),
+					new ItemStack(Block.obsidian, 16) }, 7654321, new ItemStack(blockLaser, 1)));
 			break;
 		default:
 			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftFactory.quarryBlock, 1),
@@ -232,6 +278,15 @@ public class QuarryPlus {
 			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftFactory.miningWellBlock, 1),
 					new ItemStack(BuildCraftSilicon.redstoneChipset, 2, 3), new ItemStack(BuildCraftTransport.yellowPipeWire, 16),
 					new ItemStack(BuildCraftSilicon.redstoneChipset, 1, 4), new ItemStack(Block.chest, 8) }, 160000, new ItemStack(blockMiningWell, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(Block.dispenser, 2), new ItemStack(Block.blockDiamond, 1),
+					new ItemStack(Item.redstone, 32), new ItemStack(blockQuarry, 1), new ItemStack(BuildCraftEnergy.engineBlock, 1, 2) }, 320000,
+					new ItemStack(blockBreaker, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(Block.dispenser, 2), new ItemStack(Block.blockDiamond, 1),
+					new ItemStack(Item.redstone, 32), new ItemStack(BuildCraftBuilders.fillerBlock, 1), new ItemStack(Block.blockGold, 2),
+					new ItemStack(BuildCraftEnergy.engineBlock, 1, 2) }, 640000, new ItemStack(blockPlacer, 1)));
+			AssemblyRecipe.assemblyRecipes.add(new AssemblyRecipe(new ItemStack[] { new ItemStack(BuildCraftSilicon.laserBlock, 4),
+					new ItemStack(Block.glass, 64), new ItemStack(BuildCraftTransport.pipePowerGold, 64), new ItemStack(Item.lightStoneDust, 32) }, 1280000,
+					new ItemStack(blockLaser, 1)));
 		}
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
 		proxy.registerTextures();

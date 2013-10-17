@@ -17,19 +17,16 @@
 
 package org.yogpstop.qp;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.Packet;
-import net.minecraft.src.TileEntity;
+public interface IEnchantableTile {
+	void G_reinit();
 
-import com.google.common.io.ByteArrayDataInput;
+	byte getEfficiency();
 
-public abstract class APacketTile extends TileEntity {
-	abstract void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
+	byte getFortune();
 
-	abstract void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
+	byte getUnbreaking();
 
-	@Override
-	public final Packet getDescriptionPacket() {
-		return PacketHandler.getPacketFromNBT(this);
-	}
+	boolean getSilktouch();
+
+	void set(byte efficiency, byte fortune, byte unbreaking, boolean silktouch);
 }

@@ -17,39 +17,40 @@
 
 package org.yogpstop.qp.client;
 
-import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
-import net.minecraft.src.GuiSmallButton;
-import net.minecraft.src.StatCollector;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.common.Side;
 
 @SideOnly(Side.CLIENT)
-public class GuiError extends GuiScreenA {
-	private String message1;
-	private String message2;
+public class GuiScreenA extends GuiScreen {
+	private GuiScreen parent;
 
-	public GuiError(GuiScreen par1GuiScreen, String par2Str, String par3Str) {
-		super(par1GuiScreen);
-		this.message1 = par2Str;
-		this.message2 = par3Str;
+	public GuiScreenA(GuiScreen pparent) {
+		this.parent = pparent;
 	}
 
 	@Override
-	public void initGui() {
-		this.controlList.add(new GuiSmallButton(0, this.width / 2 - 75, this.height / 6 + 96, StatCollector.translateToLocal("gui.done")));
+	public boolean doesGuiPauseGame() {
+		return false;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton par1GuiButton) {
-		showParent();
+	public void updateScreen() {
+		super.updateScreen();
+		if (!this.mc.thePlayer.isEntityAlive() || this.mc.thePlayer.isDead) {
+			this.mc.thePlayer.closeScreen();
+		}
+	}
+
+	protected void showParent() {
+		this.mc.displayGuiScreen(this.parent);
+		if (this.parent == null) this.mc.setIngameFocus();
 	}
 
 	@Override
-	public void drawScreen(int par1, int par2, float par3) {
-		this.drawDefaultBackground();
-		this.drawCenteredString(this.fontRenderer, this.message1, this.width / 2, 70, 0xFFFFFF);
-		this.drawCenteredString(this.fontRenderer, this.message2, this.width / 2, 90, 0xFFFFFF);
-		super.drawScreen(par1, par2, par3);
+	protected void keyTyped(char par1, int par2) {
+		if (par2 == 1) {
+			showParent();
+		}
 	}
 }
