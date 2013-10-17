@@ -35,7 +35,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
@@ -57,14 +56,14 @@ public class BlockQuarry extends BlockContainer {
 	@Override
 	public void breakBlock(World world, int x, int y, int z, int id, int meta) {
 		this.drop.clear();
-		TileQuarry tq = (TileQuarry) world.getBlockTileEntity(x, y, z);
-		if (world.isRemote || tq == null) return;
+		TileQuarry tile = (TileQuarry) world.getBlockTileEntity(x, y, z);
+		if (world.isRemote || tile == null) return;
 		int count = quantityDropped(meta, 0, world.rand);
 		int id1 = idDropped(meta, world.rand, 0);
 		if (id1 > 0) {
 			for (int i = 0; i < count; i++) {
 				ItemStack is = new ItemStack(id1, 1, damageDropped(meta));
-				tq.S_setEnchantment(is);
+				EnchantmentHelper.enchantmentToIS(tile, is);
 				this.drop.add(is);
 			}
 		}
@@ -128,11 +127,12 @@ public class BlockQuarry extends BlockContainer {
 	}
 
 	@Override
-	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el, ItemStack stack) {
-		super.onBlockPlacedBy(w, x, y, z, el, stack);
+	public void onBlockPlacedBy(World w, int x, int y, int z, EntityLiving el, ItemStack is) {
+		super.onBlockPlacedBy(w, x, y, z, el, is);
 		ForgeDirection orientation = get2dOrientation(el.posX, el.posZ, x, z);
 		w.setBlockMetadataWithNotify(x, y, z, orientation.getOpposite().ordinal(), 1);
-		((TileQuarry) w.getBlockTileEntity(x, y, z)).G_init(stack.getEnchantmentTagList());
+		((TileQuarry) w.getBlockTileEntity(x, y, z)).requestTicket();
+		EnchantmentHelper.init((IEnchantableTile) w.getBlockTileEntity(x, y, z), is.getEnchantmentTagList());
 	}
 
 	private static ForgeDirection get2dOrientation(double x1, double z1, double x2, double z2) {
@@ -156,8 +156,7 @@ public class BlockQuarry extends BlockContainer {
 		}
 		if (equipped instanceof ItemTool && ep.getCurrentEquippedItem().getItemDamage() == 0) {
 			if (world.isRemote) return true;
-			PacketDispatcher.sendPacketToPlayer(new Packet3Chat(StatCollector.translateToLocal("chat.plusenchant")), (Player) ep);
-			for (String s : ((TileQuarry) world.getBlockTileEntity(x, y, z)).C_getEnchantments())
+			for (String s : EnchantmentHelper.getEnchantmentsChat((IEnchantableTile) world.getBlockTileEntity(x, y, z)))
 				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(s), (Player) ep);
 			return true;
 		}

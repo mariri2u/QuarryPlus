@@ -17,19 +17,22 @@
 
 package org.yogpstop.qp;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 
-import com.google.common.io.ByteArrayDataInput;
+public class ItemBlockBreaker extends ItemBlock implements IEnchantableItem {
 
-public abstract class APacketTile extends TileEntity {
-	abstract void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
-
-	abstract void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
+	public ItemBlockBreaker(int par1) {
+		super(par1);
+	}
 
 	@Override
-	public final Packet getDescriptionPacket() {
-		return PacketHandler.getPacketFromNBT(this);
+	public boolean canMove(ItemStack is, int id, int meta) {
+		return id == 33 || id == 35 || id == -1;
+	}
+
+	@Override
+	public boolean isBookEnchantable(ItemStack itemstack1, ItemStack itemstack2) {
+		return false;
 	}
 }

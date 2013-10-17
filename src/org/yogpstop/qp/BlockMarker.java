@@ -125,7 +125,7 @@ public class BlockMarker extends BlockContainer {
 
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
-		if (!world.isRemote) ((TileMarker) world.getBlockTileEntity(x, y, z)).S_updateSignal();
+		((TileMarker) world.getBlockTileEntity(x, y, z)).G_updateSignal();
 		dropTorchIfCantStay(world, x, y, z);
 	}
 
@@ -134,10 +134,10 @@ public class BlockMarker extends BlockContainer {
 		if (!world.isRemote) {
 			Item equipped = ep.getCurrentEquippedItem() != null ? ep.getCurrentEquippedItem().getItem() : null;
 			if (equipped instanceof ItemTool && ep.getCurrentEquippedItem().getItemDamage() == 0) {
-				TileMarker.Link l = ((TileMarker) world.getBlockTileEntity(x, y, z)).obj;
+				TileMarker.Link l = ((TileMarker) world.getBlockTileEntity(x, y, z)).link;
 				if (l == null) return true;
 				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(StatCollector.translateToLocal("chat.markerarea")), (Player) ep);
-				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(String.format("x:%d y:%d z:%d - x:%d y:%d z:%d", l.xn, l.yn, l.zn, l.xx, l.yn, l.zn)),
+				PacketDispatcher.sendPacketToPlayer(new Packet3Chat(String.format("x:%d y:%d z:%d - x:%d y:%d z:%d", l.xn, l.yn, l.zn, l.xx, l.yx, l.zx)),
 						(Player) ep);
 				return true;
 			}

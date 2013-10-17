@@ -17,19 +17,19 @@
 
 package org.yogpstop.qp;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.item.ItemStack;
 
-import com.google.common.io.ByteArrayDataInput;
-
-public abstract class APacketTile extends TileEntity {
-	abstract void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
-
-	abstract void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep);
-
-	@Override
-	public final Packet getDescriptionPacket() {
-		return PacketHandler.getPacketFromNBT(this);
-	}
+public interface IEnchantableItem {
+	/**
+	 * You should not think max enchantment level in this method
+	 * 
+	 * @param is
+	 *            target ItemStack. It is never null.
+	 * @param id
+	 *            target enchantment id or -1(EnchantMover accept that item)
+	 * @param meta
+	 *            ItemDamage
+	 * @return that ItemStack can move enchantment on EnchantMover
+	 * */
+	public boolean canMove(ItemStack is, int id, int meta);
 }
