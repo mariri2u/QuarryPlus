@@ -25,6 +25,7 @@ import java.util.List;
 import com.google.common.io.ByteArrayDataInput;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -38,10 +39,10 @@ public class TileMiningWell extends TileBasic {
 	private boolean working;
 
 	@Override
-	protected void C_recievePacket(byte pattern, ByteArrayDataInput data) {
-		super.C_recievePacket(pattern, data);
+	protected void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {
+		super.C_recievePacket(pattern, data, ep);
 		switch (pattern) {
-		case packetNow:
+		case PacketHandler.StC_NOW:
 			this.working = data.readBoolean();
 			G_renew_powerConfigure();
 			this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
@@ -51,10 +52,12 @@ public class TileMiningWell extends TileBasic {
 
 	@Override
 	protected void G_renew_powerConfigure() {
-		TileEntity te = this.worldObj.getBlockTileEntity(this.xCoord + this.pump.offsetX, this.yCoord + this.pump.offsetY, this.zCoord + this.pump.offsetZ);
 		byte pmp = 0;
-		if (te instanceof TilePump) pmp = ((TilePump) te).unbreaking;
-		else this.pump = ForgeDirection.UNKNOWN;
+		if (this.worldObj != null) {
+			TileEntity te = this.worldObj.getBlockTileEntity(this.xCoord + this.pump.offsetX, this.yCoord + this.pump.offsetY, this.zCoord + this.pump.offsetZ);
+			if (te instanceof TilePump) pmp = ((TilePump) te).unbreaking;
+			else this.pump = ForgeDirection.UNKNOWN;
+		}
 		if (this.working) PowerManager.configureW(this.pp, this.efficiency, this.unbreaking, pmp);
 		else PowerManager.configure0(this.pp);
 	}
@@ -69,15 +72,16 @@ public class TileMiningWell extends TileBasic {
 			depth--;
 		}
 		if (this.working) S_breakBlock(depth);
-		List<ItemStack> cache = new LinkedList<ItemStack>();
+		List<ItemStack> todelete = new LinkedList<ItemStack>();
 		for (ItemStack is : this.cacheItems) {
 			int added = addToRandomInventory(is, this.worldObj, this.xCoord, this.yCoord, this.zCoord, ForgeDirection.UNKNOWN).stackSize;
 			is.stackSize -= added;
 			if (is.stackSize > 0) {
-				if (!addToRandomPipeEntry(this, ForgeDirection.UNKNOWN, is)) cache.add(is);
+				addToRandomPipeEntry(this, ForgeDirection.UNKNOWN, is);
 			}
+			if (is.stackSize <= 0) todelete.add(is);
 		}
-		this.cacheItems = cache;
+		this.cacheItems.removeAll(todelete);
 	}
 
 	private boolean S_checkTarget(int depth) {
@@ -114,7 +118,7 @@ public class TileMiningWell extends TileBasic {
 	}
 
 	@Override
-	protected void G_reinit() {
+	public void G_reinit() {
 		this.working = true;
 		G_renew_powerConfigure();
 		sendNowPacket(this, (byte) 1);

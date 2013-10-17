@@ -17,14 +17,11 @@
 
 package org.yogpstop.qp;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.liquids.ILiquidTank;
 import net.minecraftforge.liquids.ITankContainer;
@@ -40,7 +37,7 @@ import com.google.common.io.ByteArrayDataInput;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 
-public class TileRefinery extends APacketTile implements ITankContainer, IPowerReceptor {
+public class TileRefinery extends APacketTile implements ITankContainer, IPowerReceptor, IEnchantableTile {
 	public LiquidStack src1, src2, res;
 	private IPowerProvider pp = PowerFramework.currentFramework.createPowerProvider();
 	private int ticks;
@@ -55,37 +52,10 @@ public class TileRefinery extends APacketTile implements ITankContainer, IPowerR
 
 	public int buf;
 
-	void G_init(NBTTagList nbttl) {
-		if (nbttl != null) for (int i = 0; i < nbttl.tagCount(); i++) {
-			short id = ((NBTTagCompound) nbttl.tagAt(i)).getShort("id");
-			short lvl = ((NBTTagCompound) nbttl.tagAt(i)).getShort("lvl");
-			if (id == 32) this.efficiency = (byte) lvl;
-			if (id == 33) this.silktouch = true;
-			if (id == 34) this.unbreaking = (byte) lvl;
-			if (id == 35) this.fortune = (byte) lvl;
-		}
-		G_reinit();
-	}
-
-	protected void G_reinit() {
+	@Override
+	public void G_reinit() {
 		PowerManager.configureR(this.pp, this.efficiency, this.unbreaking);
 		this.buf = (int) (LiquidContainerRegistry.BUCKET_VOLUME * 4 * Math.pow(1.3, this.fortune));
-	}
-
-	public Collection<String> C_getEnchantments() {
-		ArrayList<String> als = new ArrayList<String>();
-		if (this.efficiency > 0) als.add(Enchantment.enchantmentsList[32].getTranslatedName(this.efficiency));
-		if (this.silktouch) als.add(Enchantment.enchantmentsList[33].getTranslatedName(1));
-		if (this.unbreaking > 0) als.add(Enchantment.enchantmentsList[34].getTranslatedName(this.unbreaking));
-		if (this.fortune > 0) als.add(Enchantment.enchantmentsList[35].getTranslatedName(this.fortune));
-		return als;
-	}
-
-	void S_setEnchantment(ItemStack is) {
-		if (this.efficiency > 0) is.addEnchantment(Enchantment.enchantmentsList[32], this.efficiency);
-		if (this.silktouch) is.addEnchantment(Enchantment.enchantmentsList[33], 1);
-		if (this.unbreaking > 0) is.addEnchantment(Enchantment.enchantmentsList[34], this.unbreaking);
-		if (this.fortune > 0) is.addEnchantment(Enchantment.enchantmentsList[35], this.fortune);
 	}
 
 	@Override
@@ -178,7 +148,24 @@ public class TileRefinery extends APacketTile implements ITankContainer, IPowerR
 		}
 	}
 
+	private void sendNowPacket() {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataOutputStream dos = new DataOutputStream(bos);
+			dos.writeInt(this.xCoord);
+			dos.writeInt(this.yCoord);
+			dos.writeInt(this.zCoord);
+			dos.writeByte(PacketHandler.StC_NOW);
+			dos.writeFloat(this.animationSpeed);
+			PacketDispatcher.sendPacketToAllAround(this.xCoord, this.yCoord, this.zCoord, 256, this.worldObj.provider.dimensionId,
+					PacketHandler.composeTilePacket(bos));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void increaseAnimation() {
+		float prev = this.animationSpeed;
 		if (this.animationSpeed < 2) {
 			this.animationSpeed = 2;
 		} else if (this.animationSpeed <= 5) {
@@ -190,9 +177,11 @@ public class TileRefinery extends APacketTile implements ITankContainer, IPowerR
 		if (this.animationStage > 300) {
 			this.animationStage = 100;
 		}
+		if (this.animationSpeed != prev) sendNowPacket();
 	}
 
 	private void decreaseAnimation() {
+		float prev = this.animationSpeed;
 		if (this.animationSpeed >= 1) {
 			this.animationSpeed -= 0.1;
 
@@ -206,16 +195,21 @@ public class TileRefinery extends APacketTile implements ITankContainer, IPowerR
 				this.animationStage--;
 			}
 		}
+		if (this.animationSpeed != prev) sendNowPacket();
 	}
 
 	@Override
-	void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {
+	protected void S_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {
 
 	}
 
 	@Override
-	void C_recievePacket(byte pattern, ByteArrayDataInput data) {
-
+	protected void C_recievePacket(byte pattern, ByteArrayDataInput data, EntityPlayer ep) {
+		switch (pattern) {
+		case PacketHandler.StC_NOW:
+			this.animationSpeed = data.readFloat();
+			break;
+		}
 	}
 
 	@Override
@@ -299,5 +293,33 @@ public class TileRefinery extends APacketTile implements ITankContainer, IPowerR
 		if (type.isLiquidEqual(this.src2)) return new LiquidTank(this.src2, this.buf);
 		if (type.isLiquidEqual(this.res)) return new LiquidTank(this.res, this.buf);
 		return null;
+	}
+
+	@Override
+	public byte getEfficiency() {
+		return this.efficiency;
+	}
+
+	@Override
+	public byte getFortune() {
+		return this.fortune;
+	}
+
+	@Override
+	public byte getUnbreaking() {
+		return this.unbreaking;
+	}
+
+	@Override
+	public boolean getSilktouch() {
+		return this.silktouch;
+	}
+
+	@Override
+	public void set(byte pefficiency, byte pfortune, byte punbreaking, boolean psilktouch) {
+		this.efficiency = pefficiency;
+		this.fortune = pfortune;
+		this.unbreaking = punbreaking;
+		this.silktouch = psilktouch;
 	}
 }

@@ -29,22 +29,20 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiSelectBlock extends GuiScreen {
-	private GuiSlotBlockList blocks;
-	private GuiScreen parent;
+public class GuiQ_SelectBlock extends GuiScreenA {
+	private GuiQ_SlotBlockList blocks;
 	private TileBasic tile;
 	private byte targetid;
 
-	public GuiSelectBlock(GuiScreen pscr, TileBasic tb, byte id) {
-		super();
-		this.parent = pscr;
+	public GuiQ_SelectBlock(GuiScreen pscr, TileBasic tb, byte id) {
+		super(pscr);
 		this.tile = tb;
 		this.targetid = id;
 	}
 
 	@Override
 	public void initGui() {
-		this.blocks = new GuiSlotBlockList(this.mc, this.width, this.height, 24, this.height - 32, 18, this, this.targetid == 0 ? this.tile.fortuneList
+		this.blocks = new GuiQ_SlotBlockList(this.mc, this.width, this.height, 24, this.height - 32, 18, this, this.targetid == 0 ? this.tile.fortuneList
 				: this.tile.silktouchList);
 		this.controlList.add(new GuiButton(-1, this.width / 2 - 150, this.height - 26, 140, 20, StatCollector.translateToLocal("gui.done")));
 		this.controlList.add(new GuiButton(-2, this.width / 2 + 10, this.height - 26, 140, 20, StatCollector.translateToLocal("gui.cancel")));
@@ -54,10 +52,11 @@ public class GuiSelectBlock extends GuiScreen {
 	public void actionPerformed(GuiButton par1) {
 		switch (par1.id) {
 		case -1:
-			PacketHandler.sendPacketToServer(this.tile, (byte) (PacketHandler.fortuneAdd + this.targetid),
+			PacketHandler.sendPacketToServer(this.tile, (byte) (PacketHandler.CtS_ADD_FORTUNE + this.targetid),
 					data(this.blocks.currentblockid, this.blocks.currentmeta));
+			break;
 		case -2:
-			this.mc.displayGuiScreen(this.parent);
+			showParent();
 			break;
 		}
 	}
