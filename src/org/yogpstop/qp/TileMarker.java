@@ -30,7 +30,6 @@ import com.google.common.io.ByteStreams;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import net.minecraft.client.Minecraft;
 import net.minecraft.src.Block;
 import net.minecraft.src.ChunkCoordIntPair;
 import net.minecraft.src.EntityItem;
@@ -40,7 +39,6 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.Packet250CustomPayload;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
-import net.minecraft.src.WorldClient;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.ForgeChunkManager.Type;
@@ -60,7 +58,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 		ByteArrayDataInput data = ByteStreams.newDataInput(pdata);
 		final byte flag = data.readByte();
 		final int dimId = data.readInt();
-		final World w = Minecraft.getMinecraft().theWorld;
+		final World w = QuarryPlus.proxy.getClientWorld();
 		if (w.provider.dimensionId != dimId) return;
 		if (flag == PacketHandler.remove_link) {
 			final int index = TileMarker.linkList.indexOf(new TileMarker.Link(w, data.readInt(), data.readInt(), data.readInt(), data.readInt(),
@@ -133,10 +131,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 				}
 			}
 			for (EntityBlock eb : this.lasers)
-				if (eb != null) {
-					eb.worldObj.removeEntity(eb);
-					if (eb.worldObj.isRemote) ((WorldClient) eb.worldObj).removeEntityFromWorld(eb.entityId);
-				}
+				if (eb != null) QuarryPlus.proxy.removeEntity(eb);
 		}
 
 		@Override
@@ -293,10 +288,7 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 
 		void deleteLaser() {
 			for (EntityBlock eb : this.lasers) {
-				if (eb != null) {
-					eb.worldObj.removeEntity(eb);
-					if (eb.worldObj.isRemote) ((WorldClient) eb.worldObj).removeEntityFromWorld(eb.entityId);
-				}
+				if (eb != null) QuarryPlus.proxy.removeEntity(eb);
 			}
 		}
 

@@ -18,6 +18,10 @@
 package org.yogpstop.qp.client;
 
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.src.WorldClient;
+import net.minecraft.src.Entity;
+import net.minecraft.src.World;
 
 import org.yogpstop.qp.CommonProxy;
 import org.yogpstop.qp.EntityMechanicalArm;
@@ -39,4 +43,13 @@ public class ClientProxy extends CommonProxy {
 		MinecraftForgeClient.preloadTexture("/mods/yogpstop_qp/textures/textures.png");
 	}
 
+	@Override
+	public void removeEntity(Entity e) {
+		e.worldObj.removeEntity(e);
+		if (e.worldObj.isRemote) ((WorldClient) e.worldObj).removeEntityFromWorld(e.entityId);
+	}
+
+	public World getClientWorld() {
+		return Minecraft.getMinecraft().theWorld;
+	}
 }
