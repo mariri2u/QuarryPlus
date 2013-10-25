@@ -34,7 +34,6 @@ public class BlockMover extends Block {
 
 	@Override
 	public int getBlockTextureFromSideAndMetadata(int i, int j) {
-
 		switch (i) {
 		case 1:
 			return 34;

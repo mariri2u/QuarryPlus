@@ -69,9 +69,11 @@ public class QuarryPlus {
 
 	@ForgeSubscribe
 	public void onWorldUnload(WorldEvent.Unload event) {
-		for (TileMarker.Link l : TileMarker.linkList)
+		TileMarker.Link[] la = TileMarker.linkList.toArray(new TileMarker.Link[TileMarker.linkList.size()]);
+		for (TileMarker.Link l : la)
 			if (l.w == event.world) l.removeConnection(false);
-		for (TileMarker.Laser l : TileMarker.laserList)
+		TileMarker.Laser[] lb = TileMarker.laserList.toArray(new TileMarker.Laser[TileMarker.laserList.size()]);
+		for (TileMarker.Laser l : lb)
 			if (l.w == event.world) l.destructor();
 	}
 

@@ -19,9 +19,9 @@ package org.yogpstop.qp;
 
 import java.util.Random;
 
+import buildcraft.core.proxy.CoreProxy;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
-import buildcraft.core.proxy.CoreProxy;
 import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.BlockPistonBase;
