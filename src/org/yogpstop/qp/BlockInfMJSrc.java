@@ -17,7 +17,6 @@
 
 package org.yogpstop.qp;
 
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -33,7 +32,7 @@ public class BlockInfMJSrc extends BlockContainer {
 		setHardness(1.5F);
 		setResistance(10F);
 		setStepSound(soundStoneFootstep);
-		setCreativeTab(tabBuildCraft);
+		setCreativeTab(QuarryPlus.ct);
 		setBlockName("InfMJSrc");
 		this.blockIndexInTexture = Block.portal.blockIndexInTexture;
 	}

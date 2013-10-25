@@ -17,7 +17,6 @@
 
 package org.yogpstop.qp;
 
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,13 +27,12 @@ public class BlockMover extends Block {
 	public BlockMover(int par1) {
 		super(par1, Material.iron);
 		setHardness(1.2F);
-		this.setCreativeTab(tabBuildCraft);
+		this.setCreativeTab(QuarryPlus.ct);
 		setBlockName("EnchantMover");
 	}
 
 	@Override
 	public int getBlockTextureFromSideAndMetadata(int i, int j) {
-
 		switch (i) {
 		case 1:
 			return 34;

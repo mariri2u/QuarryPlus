@@ -20,7 +20,6 @@ package org.yogpstop.qp;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import static buildcraft.BuildCraftCore.markerModel;
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,7 +40,7 @@ public class BlockMarker extends BlockContainer {
 	public BlockMarker(int i) {
 		super(i, Material.circuits);
 		setLightValue(0.5F);
-		setCreativeTab(tabBuildCraft);
+		setCreativeTab(QuarryPlus.ct);
 		setBlockName("MarkerPlus");
 		this.blockIndexInTexture = 16;
 	}

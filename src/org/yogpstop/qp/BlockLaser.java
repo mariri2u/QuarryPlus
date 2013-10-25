@@ -19,7 +19,6 @@ package org.yogpstop.qp;
 
 import java.util.ArrayList;
 
-import buildcraft.core.CreativeTabBuildCraft;
 import buildcraft.silicon.SiliconProxy;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -39,7 +38,7 @@ public class BlockLaser extends BlockContainer {
 	public BlockLaser(int i) {
 		super(i, Material.iron);
 		setHardness(10F);
-		setCreativeTab(CreativeTabBuildCraft.tabBuildCraft);
+		setCreativeTab(QuarryPlus.ct);
 		this.setBlockName("LaserPlus");
 	}
 
