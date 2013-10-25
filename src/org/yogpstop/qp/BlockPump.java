@@ -17,8 +17,6 @@
 
 package org.yogpstop.qp;
 
-import static buildcraft.core.CreativeTabBuildCraft.tabBuildCraft;
-
 import java.util.ArrayList;
 
 import buildcraft.api.tools.IToolWrench;
@@ -46,7 +44,7 @@ public class BlockPump extends BlockContainer {
 	public BlockPump(int i) {
 		super(i, Material.iron);
 		setHardness(5F);
-		setCreativeTab(tabBuildCraft);
+		setCreativeTab(QuarryPlus.ct);
 		setUnlocalizedName("PumpPlus");
 	}
 
