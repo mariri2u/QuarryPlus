@@ -17,6 +17,7 @@
 
 package org.yogpstop.qp;
 
+import buildcraft.core.IMachine;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
@@ -24,7 +25,7 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
 
-public class TilePlacer extends TileEntity implements IInventory {
+public class TilePlacer extends TileEntity implements IInventory, IMachine {
 	private final ItemStack[] stack = new ItemStack[getSizeInventory()];
 
 	@Override
@@ -131,5 +132,25 @@ public class TilePlacer extends TileEntity implements IInventory {
 		}
 
 		par1NBTTagCompound.setTag("Items", nbttaglist);
+	}
+
+	@Override
+	public boolean isActive() {
+		return true;
+	}
+
+	@Override
+	public boolean manageLiquids() {
+		return false;
+	}
+
+	@Override
+	public boolean manageSolids() {
+		return true;
+	}
+
+	@Override
+	public boolean allowActions() {
+		return false;
 	}
 }

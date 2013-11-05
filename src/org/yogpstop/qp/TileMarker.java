@@ -94,13 +94,13 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 			this.z = pz;
 			this.w = pw;
 			if (l == null || l.xn == l.xx) {
-				this.lasers[0] = new EntityBlock(pw, px - MAX_SIZE + a, py + b, pz + b, (MAX_SIZE + a) * 2, c, c, BuildCraftCore.blueLaserTexture);
+				this.lasers[0] = new EntityBlock(pw, px - MAX_SIZE + a, py + b, pz + b, MAX_SIZE * 2, c, c, BuildCraftCore.blueLaserTexture);
 			}
 			if (l == null || l.yn == l.yx) {
 				this.lasers[1] = new EntityBlock(pw, px + b, a, pz + b, c, 255, c, BuildCraftCore.blueLaserTexture);
 			}
 			if (l == null || l.zn == l.zx) {
-				this.lasers[2] = new EntityBlock(pw, px + b, py + b, pz - MAX_SIZE + a, c, c, (MAX_SIZE + a) * 2, BuildCraftCore.blueLaserTexture);
+				this.lasers[2] = new EntityBlock(pw, px + b, py + b, pz - MAX_SIZE + a, c, c, MAX_SIZE * 2, BuildCraftCore.blueLaserTexture);
 			}
 			for (EntityBlock eb : this.lasers)
 				if (eb != null) eb.worldObj.spawnEntityInWorld(eb);
@@ -436,7 +436,8 @@ public class TileMarker extends APacketTile implements IAreaProvider {
 			this.laser.destructor();
 			this.laser = null;
 		}
-		if (this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord, this.yCoord, this.zCoord)
+		if ((this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord, this.yCoord, this.zCoord) || this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord,
+				this.yCoord + 1, this.zCoord))
 				&& (this.link == null || this.link.xn == this.link.xx || this.link.yn == this.link.yx || this.link.zn == this.link.zx)) {
 			this.laser = new Laser(this.worldObj, this.xCoord, this.yCoord, this.zCoord, this.link);
 		}
