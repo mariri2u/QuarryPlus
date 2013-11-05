@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import buildcraft.api.tools.IToolWrench;
 import buildcraft.core.proxy.CoreProxy;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -40,7 +41,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
@@ -97,6 +97,7 @@ public class BlockBreaker extends BlockContainer {
 		TileBreaker tile = (TileBreaker) world.getBlockTileEntity(x, y, z);
 		ForgeDirection fd = ForgeDirection.getOrientation(world.getBlockMetadata(x, y, z) & 7);
 		int tx = x + fd.offsetX, ty = y + fd.offsetY, tz = z + fd.offsetZ, id = world.getBlockId(tx, ty, tz), meta = world.getBlockMetadata(tx, ty, tz);
+		if (ty < 1) return;
 		if (id <= 0) return;
 		Block b = Block.blocksList[id];
 		if (b == null) return;
@@ -139,11 +140,6 @@ public class BlockBreaker extends BlockContainer {
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving ent) {
 		EnchantmentHelper.init((IEnchantableTile) world.getBlockTileEntity(x, y, z), ent.getHeldItem().getEnchantmentTagList());
 		world.setBlockMetadataWithNotify(x, y, z, BlockPistonBase.determineOrientation(world, x, y, z, (EntityPlayer) ent));
-	}
-
-	@Override
-	public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
-		return side != -1;
 	}
 
 	static void setDispenserDefaultDirection(World par1World, int par2, int par3, int par4) {
@@ -206,6 +202,13 @@ public class BlockBreaker extends BlockContainer {
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer ep, int side, float par7, float par8, float par9) {
 		Item equipped = ep.getCurrentEquippedItem() != null ? ep.getCurrentEquippedItem().getItem() : null;
+		if (equipped instanceof IToolWrench && ((IToolWrench) equipped).canWrench(ep, x, y, z)) {
+			int i = world.getBlockMetadata(x, y, z) + 1;
+			if (i >= 6) i = 0;
+			world.setBlockMetadataWithNotify(x, y, z, i);
+			((IToolWrench) equipped).wrenchUsed(ep, x, y, z);
+			return true;
+		}
 		if (equipped instanceof ItemTool && ep.getCurrentEquippedItem().getItemDamage() == 0) {
 			if (world.isRemote) return true;
 			for (String s : EnchantmentHelper.getEnchantmentsChat((IEnchantableTile) world.getBlockTileEntity(x, y, z)))

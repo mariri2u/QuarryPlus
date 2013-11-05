@@ -22,7 +22,6 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockInfMJSrc extends BlockContainer {
@@ -46,10 +45,5 @@ public class BlockInfMJSrc extends BlockContainer {
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer ep, int par6, float par7, float par8, float par9) {
 		if (!world.isRemote) ((TileInfMJSrc) world.getBlockTileEntity(x, y, z)).S_openGUI(ep);
 		return true;
-	}
-
-	@Override
-	public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
-		return side != -1;
 	}
 }
